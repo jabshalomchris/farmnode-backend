@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.farmnode.dto.RegisterRequest;
 import com.project.farmnode.model.Role;
 import com.project.farmnode.model.User;
 import com.project.farmnode.service.UserService;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -37,9 +39,21 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
+    //New trial
+    @PostMapping("/user/signup")
+    public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest){
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("api/user/signup").toUriString());
+
+        userService.signup(registerRequest);
+        return new ResponseEntity<>("User Registration Successful",OK);
+    }
+
     @PostMapping("/user/save")
     public ResponseEntity<User>saveUser(@RequestBody User user){
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("api/user/save").toUriString());
+/*
+
+        userService.addRoleToUser(user.getUsername(),"ROLE_USER");*/
         return ResponseEntity.created(uri).body(userService.saveUser(user));
     }
 
@@ -70,7 +84,7 @@ public class UserController {
                 String access_token = JWT.create().withSubject(user.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis()+10*60*1000))
                         .withIssuer(request.getRequestURL().toString())
-                        .withClaim("roles",user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
+                 //       .withClaim("roles",user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                         .sign(algorithm);
 
                 Map<String,String> tokens = new HashMap<>();

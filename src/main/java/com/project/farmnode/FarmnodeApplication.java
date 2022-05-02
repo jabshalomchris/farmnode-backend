@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @SpringBootApplication
 @RestController
+@EnableAsync
 public class FarmnodeApplication {
 
 	public static void main(String[] args) {
@@ -53,7 +55,7 @@ public class FarmnodeApplication {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
+	/*@Bean
 	CommandLineRunner run(UserService userService){
 		return args -> {
 			userService.saveRole(new Role(null,"ROLE_USER"));
@@ -66,7 +68,7 @@ public class FarmnodeApplication {
 			userService.addRoleToUser("judah","ROLE_ADMIN");
 			userService.addRoleToUser("julie","ROLE_USER");
 		};
-	}
+	}*/
 
 
 }
