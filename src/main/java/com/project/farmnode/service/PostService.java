@@ -28,8 +28,8 @@ public class PostService {
     private final UserService userService;
     private final PostMapper postMapper;
 
-    public void save(PostRequest postRequest) {
-        postRepo.save(postMapper.map(postRequest, userService.getUser(postRequest.getUser())));
+    public void save(PostRequest postRequest, String Username) {
+        postRepo.save(postMapper.map(postRequest, userService.getUser(Username)));
     }
 
     @Transactional(readOnly = true)

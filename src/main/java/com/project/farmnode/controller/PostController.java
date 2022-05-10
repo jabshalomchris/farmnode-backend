@@ -22,8 +22,10 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<Void> createPost(@RequestBody PostRequest postRequest) {
-        postService.save(postRequest);
+    public ResponseEntity<Void> createPost(@RequestBody PostRequest postRequest, HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+        postService.save(postRequest,username);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

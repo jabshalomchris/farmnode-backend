@@ -29,10 +29,10 @@ public class CommentsService {
     private final MailContentBuilder mailContentBuilder;
     private final MailService mailService;
 
-    public void save(CommentsDto commentsDto) {
+    public void save(CommentsDto commentsDto, String username) {
         Post post = postRepo.findById(commentsDto.getPostId())
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: "+commentsDto.getPostId().toString()));
-        Comment comment = commentMapper.map(commentsDto, post, userService.getUser(commentsDto.getUserName()));
+        Comment comment = commentMapper.map(commentsDto, post, userService.getUser(username));
         commentRepo.save(comment);
 
         String message = mailContentBuilder.build(post.getUser().getName() + " posted a comment on your post." + POST_URL);

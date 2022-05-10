@@ -16,17 +16,18 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comment {
+public class ProduceComment {
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long commentId;
+    private Long produceCommentId;
     @NotEmpty
     private String text;
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "postId", referencedColumnName = "postId")
-    private Post post;
+    @JoinColumn(name = "produceId", referencedColumnName = "produceId")
+    private Produce produce;
     private Instant createdDate;
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
+
 }

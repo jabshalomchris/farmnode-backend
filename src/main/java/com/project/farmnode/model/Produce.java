@@ -30,7 +30,7 @@ public class Produce {
     private double latitude;
     private boolean publish_status;
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "id")
+    @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
 
 

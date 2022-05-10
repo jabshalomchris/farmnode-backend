@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostResponse {
-    private Long id;
+    private Long postId;
     private String postName;
     private String url;
     private String description;
