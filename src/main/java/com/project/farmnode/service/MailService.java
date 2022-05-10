@@ -1,5 +1,6 @@
 package com.project.farmnode.service;
 
+import com.project.farmnode.exception.MailErrorException;
 import com.project.farmnode.model.NotificationEmail;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +32,7 @@ public class MailService {
             log.info("Email sent!!");
         } catch (MailException e) {
             log.error("Exception occurred when sending mail", e);
-            //throw new SpringRedditException("Exception occurred when sending mail to " + notificationEmail.getRecipient(), e);
-            //make exceptions
+            throw new MailErrorException("Exception occurred when sending mail to " + notificationEmail.getRecipient());
         }
     }
 }

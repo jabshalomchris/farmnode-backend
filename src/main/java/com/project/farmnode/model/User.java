@@ -9,7 +9,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Entity @Data
+@Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {

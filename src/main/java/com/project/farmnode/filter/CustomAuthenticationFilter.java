@@ -51,7 +51,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         response.setStatus(UNAUTHORIZED.value());
         //response.sendError(FORBIDDEN.value());
         Map<String,String> error = new HashMap<>();
-        error.put("error_message", "Login Error");
+        error.put("message", "Login Error");
         error.put("access_time",new Date().toString());
         response.setContentType(APPLICATION_JSON_VALUE);
         new ObjectMapper().writeValue(response.getOutputStream(),error);
@@ -66,7 +66,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(currentTimeMillis()+10*60*1000))
+                .withExpiresAt(new Date(currentTimeMillis()+100*60*1000))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles",user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
                 .sign(algorithm);

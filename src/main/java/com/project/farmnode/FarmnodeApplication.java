@@ -1,5 +1,7 @@
 package com.project.farmnode;
 
+
+import com.project.farmnode.config.SwaggerConfiguration;
 import com.project.farmnode.model.Role;
 import com.project.farmnode.model.User;
 import com.project.farmnode.service.UserService;
@@ -8,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 @RestController
 @EnableAsync
+@Import(SwaggerConfiguration.class)
 public class FarmnodeApplication {
 
 	public static void main(String[] args) {

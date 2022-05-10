@@ -42,9 +42,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setEnabled(true); //set false after enabling email activation
 
         userRepo.save(user);
-        mailService.sendMail(new NotificationEmail("Please Activate your Account",
-                user.getUsername(), "Thank you for signing up to Famrnode, " +
-                "please click on the below url to activate your account : "));
+//        mailService.sendMail(new NotificationEmail("Please Activate your Account",
+//                user.getUsername(), "Thank you for signing up to Famrnode, " +
+//                "please click on the below url to activate your account : "));
     }
 
     @Override

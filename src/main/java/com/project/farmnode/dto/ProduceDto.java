@@ -1,21 +1,14 @@
-package com.project.farmnode.model;
+package com.project.farmnode.dto;
 
+import com.project.farmnode.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-
-import static javax.persistence.FetchType.LAZY;
-
-@Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class Produce {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+@NoArgsConstructor
+public class ProduceDto {
     private Long produceId;
     private String produceName;
     private String description;
@@ -29,10 +22,5 @@ public class Produce {
     private double longitude;
     private double latitude;
     private boolean publish_status;
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private User user;
-
-
-
+    private String userName;
 }
