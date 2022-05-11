@@ -1,12 +1,13 @@
 package com.project.farmnode.service;
 
 import com.project.farmnode.dto.ProduceDto;
+import com.project.farmnode.dto.ProduceFilterDto;
 import com.project.farmnode.exception.ResourceNotFoundException;
 import com.project.farmnode.mapper.ProduceMapper;
 import com.project.farmnode.model.Produce;
 import com.project.farmnode.model.User;
-import com.project.farmnode.repo.ProduceRepo;
-import com.project.farmnode.repo.UserRepo;
+import com.project.farmnode.repository.ProduceRepo;
+import com.project.farmnode.repository.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -55,6 +56,18 @@ public class ProduceService {
         }
        //              .orElseThrow(() -> new UsernameNotFoundException(userName));
         return produceRepo.findByUser(user)
+                .stream()
+                .map(produceMapper::mapToDto)
+                .collect(toList());
+    }
+
+    public List<ProduceDto> getFilteredProduces(ProduceFilterDto produceFilterDto) {
+        String sw_lat = produceFilterDto.getSw_lat();
+        String ne_lat = produceFilterDto.getNe_lat();
+        String sw_lng = produceFilterDto.getSw_lng();
+        String ne_lng = produceFilterDto.getNe_lng();
+
+        return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng)
                 .stream()
                 .map(produceMapper::mapToDto)
                 .collect(toList());

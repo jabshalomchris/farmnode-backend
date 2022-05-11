@@ -3,8 +3,8 @@ package com.project.farmnode.controller;
 import com.project.farmnode.dto.UserDto;
 import com.project.farmnode.mapper.UserMapper;
 import com.project.farmnode.model.User;
-import com.project.farmnode.repo.FriendRepo;
-import com.project.farmnode.repo.UserRepo;
+import com.project.farmnode.repository.FriendRepo;
+import com.project.farmnode.repository.UserRepo;
 
 import com.project.farmnode.service.FriendService;
 import lombok.AllArgsConstructor;

@@ -27,6 +27,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_GATEWAY);
     }
 
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<?> handleCustomException(CustomException exception, WebRequest request){
+        ErrorDetails errorDetails =
+                new ErrorDetails(new Date(), exception.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> globalExceptionHandling(Exception exception, WebRequest request){
         ErrorDetails errorDetails =

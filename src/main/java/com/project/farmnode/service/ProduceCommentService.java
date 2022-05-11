@@ -1,15 +1,12 @@
 package com.project.farmnode.service;
 
-import com.project.farmnode.dto.CommentsDto;
 import com.project.farmnode.dto.ProduceCommentsDto;
 import com.project.farmnode.exception.ResourceNotFoundException;
-import com.project.farmnode.mapper.CommentMapper;
 import com.project.farmnode.mapper.ProduceCommentMapper;
 import com.project.farmnode.model.*;
-import com.project.farmnode.repo.CommentRepo;
-import com.project.farmnode.repo.ProduceCommentRepo;
-import com.project.farmnode.repo.ProduceRepo;
-import com.project.farmnode.repo.UserRepo;
+import com.project.farmnode.repository.ProduceCommentRepo;
+import com.project.farmnode.repository.ProduceRepo;
+import com.project.farmnode.repository.UserRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

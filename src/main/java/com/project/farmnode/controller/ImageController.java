@@ -1,7 +1,7 @@
 package com.project.farmnode.controller;
 
 import com.project.farmnode.model.Image;
-import com.project.farmnode.repo.ImageRepo;
+import com.project.farmnode.repository.ImageRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

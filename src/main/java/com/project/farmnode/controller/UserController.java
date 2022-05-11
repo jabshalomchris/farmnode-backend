@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.farmnode.dto.RegisterRequest;
+import com.project.farmnode.dto.ResponseDto;
 import com.project.farmnode.model.Role;
 import com.project.farmnode.model.User;
 import com.project.farmnode.service.UserService;
@@ -41,11 +42,12 @@ public class UserController {
 
     //New trial
     @PostMapping("/user/signup")
-    public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest){
+    public ResponseDto signup(@RequestBody RegisterRequest registerRequest){
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("api/user/signup").toUriString());
 
-        userService.signup(registerRequest);
-        return new ResponseEntity<>("User Registration Successful",OK);
+        //userService.signup(registerRequest);
+        //return new ResponseEntity<>("User Registration Successful",OK);
+        return userService.signup(registerRequest);
     }
 
     @PostMapping("/user/save")

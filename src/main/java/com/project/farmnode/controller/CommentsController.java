@@ -1,8 +1,10 @@
 package com.project.farmnode.controller;
 
+import com.project.farmnode.common.ApiResponse;
 import com.project.farmnode.dto.CommentsDto;
 import com.project.farmnode.service.CommentsService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,11 +24,11 @@ public class CommentsController {
     private final CommentsService commentsService;
 
     @PostMapping
-    public ResponseEntity<Void> createComment(@RequestBody CommentsDto commentsDto, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> createComment(@RequestBody CommentsDto commentsDto, HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         commentsService.save(commentsDto,username);
-        return new ResponseEntity<>(CREATED);
+        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Commented"), HttpStatus.CREATED);
     }
 
     @GetMapping("/by-post/{postId}")

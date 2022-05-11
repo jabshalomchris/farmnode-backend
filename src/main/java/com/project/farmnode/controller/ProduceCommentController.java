@@ -1,10 +1,12 @@
 package com.project.farmnode.controller;
 
+import com.project.farmnode.common.ApiResponse;
 import com.project.farmnode.dto.CommentsDto;
 import com.project.farmnode.dto.ProduceCommentsDto;
 import com.project.farmnode.service.CommentsService;
 import com.project.farmnode.service.ProduceCommentService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +26,11 @@ public class ProduceCommentController {
     private final ProduceCommentService produceCommentService;
 
     @PostMapping
-    public ResponseEntity<Void> createProduceComment(@RequestBody ProduceCommentsDto produceCommentsDto, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> createProduceComment(@RequestBody ProduceCommentsDto produceCommentsDto, HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         produceCommentService.save(produceCommentsDto,username);
-        return new ResponseEntity<>(CREATED);
+        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Commented"), HttpStatus.CREATED);
     }
 
     @GetMapping("/by-produce/{produceId}")

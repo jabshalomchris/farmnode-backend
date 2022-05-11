@@ -1,8 +1,10 @@
 package com.project.farmnode.controller;
 
+import com.project.farmnode.common.ApiResponse;
 import com.project.farmnode.dto.PostRequest;
 import com.project.farmnode.dto.PostResponse;
 import com.project.farmnode.dto.ProduceDto;
+import com.project.farmnode.dto.ProduceFilterDto;
 import com.project.farmnode.model.Produce;
 import com.project.farmnode.service.ProduceService;
 import lombok.AllArgsConstructor;
@@ -23,11 +25,11 @@ public class ProduceController {
     private final ProduceService produceService;
 
     @PostMapping
-    public ResponseEntity<Void> createProduce(@RequestBody ProduceDto produceDto, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> createProduce(@RequestBody ProduceDto produceDto, HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         produceService.save(produceDto, username);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Produce has been added"), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -45,10 +47,10 @@ public class ProduceController {
         return status(HttpStatus.OK).body(produceService.getProduceByUsername(username));
     }
 
-   /* //fetch produces within bounds
-    @GetMapping("by-user/{username}")
-    public ResponseEntity<List<ProduceDto>> getProduceByUsername(@PathVariable String username) {
-        return status(HttpStatus.OK).body(produceService.getProduceByUsername(username));
-    }*/
+    //fetch produces within bounds
+    @GetMapping("by-filters")
+    public ResponseEntity<List<ProduceDto>> getProduceByFilters(@RequestBody ProduceFilterDto produceFilterDto) {
+        return status(HttpStatus.OK).body(produceService.getFilteredProduces(produceFilterDto));
+    }
 
 }

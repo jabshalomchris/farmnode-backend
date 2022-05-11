@@ -1,4 +1,4 @@
-package com.project.farmnode.repo;
+package com.project.farmnode.repository;
 
 import com.project.farmnode.model.Post;
 import com.project.farmnode.model.User;

@@ -1,5 +1,6 @@
 package com.project.farmnode.controller;
 
+import com.project.farmnode.common.ApiResponse;
 import com.project.farmnode.config.SecurityConfig;
 import com.project.farmnode.dto.PostRequest;
 import com.project.farmnode.dto.PostResponse;
@@ -22,11 +23,11 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<Void> createPost(@RequestBody PostRequest postRequest, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> createPost(@RequestBody PostRequest postRequest, HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         postService.save(postRequest,username);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Posted"), HttpStatus.CREATED);
     }
 
     @GetMapping

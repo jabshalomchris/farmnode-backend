@@ -1,11 +1,14 @@
 package com.project.farmnode.service;
 
 import com.project.farmnode.dto.RegisterRequest;
-import com.project.farmnode.model.NotificationEmail;
+import com.project.farmnode.dto.ResponseDto;
+import com.project.farmnode.enums.ResponseStatus;
+import com.project.farmnode.exception.CustomException;
 import com.project.farmnode.model.Role;
 import com.project.farmnode.model.User;
-import com.project.farmnode.repo.RoleRepo;
-import com.project.farmnode.repo.UserRepo;
+import com.project.farmnode.repository.RoleRepo;
+import com.project.farmnode.repository.UserRepo;
+import com.project.farmnode.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,18 +36,31 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final MailService mailService;
 
     @Override
-    public void signup(RegisterRequest registerRequest) {
+    public ResponseDto signup(RegisterRequest registerRequest) {
+        // Check to see if the current email address has already been registered.
+        if (Helper.notNull(userRepo.findByUsername(registerRequest.getUsername()))) {
+            // If the email address has been registered then throw an exception.
+            throw new CustomException("Username already exists");
+        }
+
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setName(registerRequest.getName());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setCreated(Instant.now());
         user.setEnabled(true); //set false after enabling email activation
-
-        userRepo.save(user);
+        try {
+            userRepo.save(user);
 //        mailService.sendMail(new NotificationEmail("Please Activate your Account",
 //                user.getUsername(), "Thank you for signing up to Famrnode, " +
 //                "please click on the below url to activate your account : "));
+
+        }
+        catch (Exception e) {
+            // handle signup error
+            throw new CustomException(e.getMessage());
+        }
+        return new ResponseDto(ResponseStatus.success.toString(), "User Registration Successful");
     }
 
     @Override
@@ -78,7 +94,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void addRoleToUser(String username, String roleName) {
         User user = userRepo.findByUsername(username);
         Role role = roleRepo.findByName(roleName);
-       // user.getRoles().add(role);
+        // user.getRoles().add(role);
     }
 
     @Override
