@@ -16,7 +16,7 @@ public abstract class PostMapper {
     @Mapping(target = "user", source = "user")
     public abstract Post map(PostRequest postRequest, User user);
 
-    @Mapping(target = "id", source = "postId")
+    @Mapping(target = "postId", source = "postId")
     @Mapping(target = "userName", source = "user.username")
     /*@Mapping(target = "commentCount", expression = "java(commentCount(post))")
     @Mapping(target = "duration", expression = "java(getDuration(post))")

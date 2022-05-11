@@ -14,7 +14,7 @@ import java.util.Date;
 public class Friend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer friendId;
 
     @Column(name = "created_date")
     private Date createdDate;
