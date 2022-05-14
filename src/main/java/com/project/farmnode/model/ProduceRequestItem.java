@@ -25,6 +25,4 @@ public class ProduceRequestItem {
     private Produce produce;
     private Instant createdDate;
 
-
-
 }

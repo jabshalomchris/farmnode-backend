@@ -30,4 +30,5 @@ public class ProduceComment {
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
 
+
 }

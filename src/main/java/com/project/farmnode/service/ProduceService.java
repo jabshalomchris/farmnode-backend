@@ -10,6 +10,7 @@ import com.project.farmnode.repository.ProduceRepo;
 import com.project.farmnode.repository.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,6 +73,16 @@ public class ProduceService {
                 .map(produceMapper::mapToDto)
                 .collect(toList());
     }
+
+    public List<ProduceDto> getFilteredGeoJsonProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng) {
+
+        return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng)
+                .stream()
+                .map(produceMapper::mapToDto)
+                .collect(toList());
+    }
+
+
 
 
 }

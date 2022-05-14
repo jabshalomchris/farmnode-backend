@@ -12,7 +12,7 @@ public class ProduceDto {
     private Long produceId;
     private String produceName;
     private String description;
-    private boolean produce_status;
+    private String produceStatus;
     private double price;
     //category
     private String category;
@@ -21,6 +21,6 @@ public class ProduceDto {
     //geolocation
     private double longitude;
     private double latitude;
-    private boolean publish_status;
+    private String publishStatus;
     private String userName;
 }

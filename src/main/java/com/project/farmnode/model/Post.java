@@ -32,4 +32,5 @@ public class Post {
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
     private Instant createdDate;
+    private boolean status;
 }
