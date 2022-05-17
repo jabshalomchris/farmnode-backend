@@ -1,6 +1,7 @@
 package com.project.farmnode.service;
 
 import com.project.farmnode.dto.UserDto;
+import com.project.farmnode.enums.FriendshipStatus;
 import com.project.farmnode.mapper.UserMapper;
 import com.project.farmnode.model.Friend;
 import com.project.farmnode.model.User;
@@ -25,7 +26,7 @@ public class FriendService {
     private final FriendRepo friendRepo;
     private final UserMapper userMapper;
 
-    public void saveFriend(UserDto userDto1, Long id) throws NullPointerException{
+    /*public void saveFriend(UserDto userDto1, Long id) throws NullPointerException{
         User user = userRepo.getOne(id);
        // user = userRepo.getOne(id);
         UserDto userDto2 = userMapper.mapToDto(user);
@@ -43,11 +44,93 @@ public class FriendService {
             friend.setCreatedDate(new Date());
             friend.setFirstUser(firstuser);
             friend.setSecondUser(seconduser);
+            friend.setApprovalStatus(FriendshipStatus.PENDING.toString());
             friendRepo.save(friend);
         }
+    }*/
+
+    public void saveFriend(UserDto userDto1, Long id) throws NullPointerException{
+        User user = userRepo.getById(id);
+        // user = userRepo.getOne(id);
+        UserDto userDto2 = userMapper.mapToDto(user);
+
+        Friend friend = new Friend();
+        User sender = userRepo.findByUsername(userDto1.getUsername());   // change to email when needed
+        User receiver = userRepo.findByUsername(userDto2.getUsername());   // change to email when needed
+
+
+        if( !(friendRepo.existsBySenderAndReceiver(sender,receiver))
+                || !(friendRepo.existsBySenderAndReceiver(receiver,sender))){
+            friend.setCreatedDate(new Date());
+            friend.setSender(sender);
+            friend.setReceiver(receiver);
+            friend.setApprovalStatus(FriendshipStatus.PENDING.toString());
+            friendRepo.save(friend);
+        }
+
     }
 
-    public List<UserDto> getFriends(String userName){
+
+    public List<UserDto> getFriendsOfUser(String userName){
+        User currentUser = userRepo.findByUsername(userName);
+        if(currentUser==null){
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+
+        List<Friend> friendsBySender = friendRepo.findBySenderAndApprovalStatus(currentUser, FriendshipStatus.APPROVED.toString());
+        List<Friend> friendsByReceiver = friendRepo.findByReceiverAndApprovalStatus(currentUser, FriendshipStatus.APPROVED.toString());
+        List<UserDto> friendUsers = new ArrayList<>();
+        UserDto userDto;
+
+        for (Friend friend : friendsBySender) {
+
+             userDto = userMapper.mapToDto(userRepo.getById(friend.getReceiver().getUserId()));
+            friendUsers.add(userDto);
+        }
+        for (Friend friend : friendsByReceiver) {
+             userDto = userMapper.mapToDto(userRepo.getById(friend.getSender().getUserId()));
+            friendUsers.add(userDto);
+        }
+        return friendUsers;
+
+    }
+
+    public List<UserDto> getOutBoundRequests(String userName){
+        User currentUser = userRepo.findByUsername(userName);
+        if(currentUser==null){
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+
+        List<Friend> friendsBySender = friendRepo.findBySenderAndApprovalStatus(currentUser, FriendshipStatus.PENDING.toString());
+        List<UserDto> receivers = new ArrayList<>();
+        UserDto userDto;
+
+        for (Friend friend : friendsBySender) {
+            userDto = userMapper.mapToDto(userRepo.getById(friend.getReceiver().getUserId()));
+            receivers.add(userDto);
+        }
+        return receivers;
+    }
+
+    public List<UserDto> getInboundRequests(String userName){
+        User currentUser = userRepo.findByUsername(userName);
+        if(currentUser==null){
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+
+        List<Friend> friendsByReceiver = friendRepo.findByReceiverAndApprovalStatus(currentUser, FriendshipStatus.PENDING.toString());
+        List<UserDto> senders = new ArrayList<>();
+        UserDto userDto;
+
+        for (Friend friend : friendsByReceiver) {
+            userDto = userMapper.mapToDto(userRepo.getById(friend.getSender().getUserId()));
+            senders.add(userDto);
+        }
+        return senders;
+    }
+
+
+    /*public List<UserDto> getFriends(String userName){
         User currentUser = userRepo.findByUsername(userName);
         if(currentUser==null){
             throw new UsernameNotFoundException("User not found in the database");
@@ -58,13 +141,13 @@ public class FriendService {
         List<UserDto> friendUsers = new ArrayList<>();
         UserDto userDto;
 
-        /*
+        *//*
             suppose there are 3 users with id 1,2,3.
             if user1 add user2 as friend database record will be first user = user1 second user = user2
             if user3 add user2 as friend database record will be first user = user2 second user = user3
             it is because of lexicographical order
             while calling get friends of user 2 we need to check as a both first user and the second user
-         */
+         *//*
         for (Friend friend : friendsByFirstUser) {
 
              userDto = userMapper.mapToDto(userRepo.getById(friend.getSecondUser().getUserId()));
@@ -76,5 +159,5 @@ public class FriendService {
         }
         return friendUsers;
 
-    }
+    }*/
 }

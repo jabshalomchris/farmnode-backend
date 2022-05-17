@@ -10,19 +10,20 @@ import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProduceRequestItem {
+public class Request {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private int quantity;
-    @ManyToOne
-    private ProduceRequest produceRequest;
-    @ManyToOne
-    private Produce produce;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long requestId;
+    private String requestStatus;
+    @OneToMany
+    private List<RequestItem> RequestItem;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "userId", referencedColumnName = "userId")
+    private User user;
     private Instant createdDate;
-
 }

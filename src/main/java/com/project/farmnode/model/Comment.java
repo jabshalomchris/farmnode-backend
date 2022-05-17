@@ -21,7 +21,7 @@ public class Comment {
     @GeneratedValue(strategy = IDENTITY)
     private Long commentId;
     @NotEmpty
-    private String text;
+    private String commentText;
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "postId", referencedColumnName = "postId")
     private Post post;
@@ -29,5 +29,5 @@ public class Comment {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
-    private boolean status;
+    private boolean commentStatus;
 }

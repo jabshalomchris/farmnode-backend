@@ -47,12 +47,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setUsername(registerRequest.getUsername());
         user.setName(registerRequest.getName());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setCreated(Instant.now());
-        user.setEnabled(true); //set false after enabling email activation
+        user.setCreationDate(Instant.now());
+        user.setActive(true); //set false after enabling email activation
         try {
             userRepo.save(user);
 //        mailService.sendMail(new NotificationEmail("Please Activate your Account",
-//                user.getUsername(), "Thank you for signing up to Famrnode, " +
+//                user.getUsername(), "Thank you for signing up to Farmnode, " +
 //                "please click on the below url to activate your account : "));
 
         }
@@ -94,11 +94,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public void addRoleToUser(String username, String roleName) {
         User user = userRepo.findByUsername(username);
         Role role = roleRepo.findByName(roleName);
-        // user.getRoles().add(role);
+         //user.getRoles().add(role);
     }
 
     @Override
     public User getUser(String username) {
+        return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public User getFellowUser(String username) {
         return userRepo.findByUsername(username);
     }
 

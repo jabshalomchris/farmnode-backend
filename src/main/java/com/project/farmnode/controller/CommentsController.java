@@ -17,7 +17,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("/api/comments/")
+@RequestMapping("/api/comments")
 @AllArgsConstructor
 public class CommentsController {
     @Resource(name = "commentService")
@@ -28,7 +28,7 @@ public class CommentsController {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         commentsService.save(commentsDto,username);
-        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Commented"), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ApiResponse(true, "Commented"), HttpStatus.CREATED);
     }
 
     @GetMapping("/by-post/{postId}")

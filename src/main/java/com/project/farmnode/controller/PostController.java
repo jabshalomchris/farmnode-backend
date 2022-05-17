@@ -27,7 +27,7 @@ public class PostController {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         postService.save(postRequest,username);
-        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Posted"), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ApiResponse(true, "Posted"), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -44,7 +44,14 @@ public class PostController {
     public ResponseEntity<List<PostResponse>> getPostsByUsername(@PathVariable String username) {
         return status(HttpStatus.OK).body(postService.getPostsByUsername(username));
     }
-    //getting the logged in user
+
+    @GetMapping("by-user-status/{username}/{status}")
+    public ResponseEntity<List<PostResponse>> getPostsByUsernameAndStatus(@PathVariable("username") String username,
+                                                                          @PathVariable("status") boolean status) {
+        return status(HttpStatus.OK).body(postService.getPostsByUsernameAndStatus(username,status));
+    }
+
+    //getting the logged-in user
     @GetMapping("/gettinguserdetails")
     @ResponseBody
     public String currentUserNameSimple(HttpServletRequest request) {

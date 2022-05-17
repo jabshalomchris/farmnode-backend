@@ -1,6 +1,7 @@
 package com.project.farmnode.enums;
 
 public enum ProduceStatus {
-    ripe,
-    growing
+    RIPE,
+    GROWING,
+    READY
 }

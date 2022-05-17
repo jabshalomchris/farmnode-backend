@@ -15,6 +15,10 @@ public interface UserService {
     //assuming no username duplicates
     void addRoleToUser(String username, String roleName);
     User getUser(String username);
-    //in real world application we dont return all users but a page of users
+
+    //getting another users details with friendship
+    User getFellowUser(String username);
+
+    //in real world application we don't return all users but a page of users
     List<User> getUsers();
 }

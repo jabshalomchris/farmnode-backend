@@ -13,9 +13,10 @@ import java.util.Collection;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name="users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String name;
     private String username;
@@ -23,7 +24,7 @@ public class User {
     //private String email;
     /*@ManyToMany(fetch = FetchType.EAGER)
     private Collection<Role> roles = new ArrayList<>();*/
-    private Instant created;
-    private boolean enabled;
+    private Instant creationDate;
+    private boolean active;
 
 }

@@ -5,6 +5,7 @@ import com.project.farmnode.dto.GeoJsonBuilder.feature.FeatureCollectionBuilder;
 import com.project.farmnode.dto.GeoJsonModel.feature.FeatureCollectionDto;
 import com.project.farmnode.dto.GeoJsonModel.feature.FeatureDto;
 import com.project.farmnode.dto.GeoJsonModel.geometry.PointDto;
+import com.project.farmnode.dto.PostResponse;
 import com.project.farmnode.dto.ProduceDto;
 import com.project.farmnode.dto.ProduceFilterDto;
 import com.project.farmnode.service.ProduceService;
@@ -22,7 +23,7 @@ import java.util.List;
 import static org.springframework.http.ResponseEntity.status;
 
 @RestController
-@RequestMapping("/api/produce/")
+@RequestMapping("/api/produce")
 @AllArgsConstructor
 public class ProduceController {
     private final ProduceService produceService;
@@ -45,17 +46,31 @@ public class ProduceController {
         return status(HttpStatus.OK).body(produceService.getProduce(id));
     }
 
-    @GetMapping("by-user/{username}")
+    @GetMapping("/detailed/{id}")
+    public ResponseEntity<ProduceDto> getProduceWithSubscription(@PathVariable Long id, HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+        return status(HttpStatus.OK).body(produceService.getProduceWithSubscription(id,username));
+    }
+
+    @GetMapping("/by-user/{username}")
     public ResponseEntity<List<ProduceDto>> getProduceByUsername(@PathVariable String username) {
         return status(HttpStatus.OK).body(produceService.getProduceByUsername(username));
     }
 
+    @GetMapping("/by-user/{username}/{status}")
+    public ResponseEntity<List<ProduceDto>> getProduceByUsernameAndStatus(@PathVariable("username") String username,
+                                                                          @PathVariable("status") String status) {
+        return status(HttpStatus.OK).body(produceService.getProduceByUsernameAndPublishStatus(username,status));
+    }
+
+
     //fetch produces within bounds
-    @GetMapping("by-filters")
+    @GetMapping("/by-filters")
     public ResponseEntity<List<ProduceDto>> getProduceByFilters(@RequestBody ProduceFilterDto produceFilterDto) {
         return status(HttpStatus.OK).body(produceService.getFilteredProduces(produceFilterDto));
     }
-    @GetMapping("geoJson")
+    @GetMapping("/geoJson")
     public String getProduceGeoJsonByFilters() {
 
         FeatureDto feature = new FeatureDto();
@@ -77,7 +92,7 @@ public class ProduceController {
         return FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
     }
 
-    @RequestMapping(value = "geoJsonNew", method = RequestMethod.GET, produces="application/json")
+    @RequestMapping(value = "/geoJsonNew", method = RequestMethod.GET, produces="application/json")
     @ResponseBody
     public String getProduceGeoJsonByFiltersNew(@RequestParam String sw_lat,
                                                 @RequestParam String ne_lat,

@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface PostRepo extends JpaRepository<Post, Long> {
     List<Post> findByUser(User user);
+    List<Post> findByUserAndStatus(User user, boolean status);
 }

@@ -35,7 +35,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponse getPost(Long id) {
         Post post = postRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: "+id.toString()));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found with id: "+id));
         return postMapper.mapToDto(post);
     }
 
@@ -55,6 +55,19 @@ public class PostService {
         }
         //                    .orElseThrow(() -> new ResourceNotFoundException("User not found with the username: " +username));
         return postRepo.findByUser(user)
+                .stream()
+                .map(postMapper::mapToDto)
+                .collect(toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getPostsByUsernameAndStatus(String username, boolean status) {
+        User user = userRepo.findByUsername(username);
+        if(user==null){
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+        //                    .orElseThrow(() -> new ResourceNotFoundException("User not found with the username: " +username));
+        return postRepo.findByUserAndStatus(user,status)
                 .stream()
                 .map(postMapper::mapToDto)
                 .collect(toList());

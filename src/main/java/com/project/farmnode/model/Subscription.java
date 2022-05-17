@@ -5,26 +5,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.Instant;
-import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
-
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProduceRequest {
+public class Subscription {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long requestId;
-    private String status;
-    @OneToMany
-    List<ProduceRequestItem> produceRequestItems;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long subscribeId;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
-    private User user;
-    private Instant createdDate;
+    User user;
 
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "produceId", referencedColumnName = "produceId")
+    Produce produce;
 }

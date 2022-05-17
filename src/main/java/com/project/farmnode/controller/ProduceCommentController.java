@@ -19,7 +19,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("/api/produce/comments/")
+@RequestMapping("/api/produce/comments")
 @AllArgsConstructor
 public class ProduceCommentController {
     @Resource(name = "ProduceCommentService")
@@ -30,7 +30,7 @@ public class ProduceCommentController {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         produceCommentService.save(produceCommentsDto,username);
-        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Commented"), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ApiResponse(true, "Commented"), HttpStatus.CREATED);
     }
 
     @GetMapping("/by-produce/{produceId}")

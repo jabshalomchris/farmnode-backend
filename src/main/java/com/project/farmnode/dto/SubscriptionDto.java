@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class SubscriptionDto {
     private Long userId;
-    private String name;
+    private String fullName;
     private String username;
-    /*private Instant creationDate;
-    private boolean active;*/
+    private List<ProduceDto> priceDto = new ArrayList<>();
+
 }

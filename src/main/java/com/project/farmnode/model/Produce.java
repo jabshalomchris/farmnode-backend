@@ -15,7 +15,7 @@ import static javax.persistence.FetchType.LAZY;
 public class Produce {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long produceId;
     private String produceName;
     private String description;

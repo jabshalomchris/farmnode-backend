@@ -1,7 +1,11 @@
 package com.project.farmnode.controller;
 
+import com.project.farmnode.common.ApiResponse;
+import com.project.farmnode.dto.FellowUserDto;
 import com.project.farmnode.dto.UserDto;
+import com.project.farmnode.mapper.FellowUserMapper;
 import com.project.farmnode.mapper.UserMapper;
+import com.project.farmnode.model.Friend;
 import com.project.farmnode.model.User;
 import com.project.farmnode.repository.FriendRepo;
 import com.project.farmnode.repository.UserRepo;
@@ -20,23 +24,24 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/friends/")
+@RequestMapping("/api/friends")
 @AllArgsConstructor
 public class FriendController {
     private final FriendService friendService;
     private final FriendRepo friendRepo;
     private final UserRepo userRepo;
     private final UserMapper userMapper;
+    private final FellowUserMapper fellowUserMapper;
 
     @GetMapping("/addFriend")
-    public ResponseEntity<?> addUser(@RequestParam("friendId")String friendId, HttpServletRequest request) throws NullPointerException{
+    public ResponseEntity<ApiResponse> addUser(@RequestParam("friendId")String friendId, HttpServletRequest request) throws NullPointerException{
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         User user = userRepo.findByUsername(username);
         UserDto currentUser = userMapper.mapToDto(user);
 
         friendService.saveFriend(currentUser,Long.parseLong(friendId));
-        return ResponseEntity.ok("Friend added successfully");
+        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Friend request sent successfully"), HttpStatus.CREATED);
     }
 
     @GetMapping("/listFriends")
@@ -44,11 +49,29 @@ public class FriendController {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
 
-        List<UserDto> myFriends = friendService.getFriends(username);
+        List<UserDto> myFriends = friendService.getFriendsOfUser(username);
         return new ResponseEntity<List<UserDto>>(myFriends, HttpStatus.OK);
     }
 
-    @GetMapping("/checkFriend")
+    @GetMapping("/inbound-requests")
+    public ResponseEntity<List<UserDto>> getInboundRequests(HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+
+        List<UserDto> myFriends = friendService.getInboundRequests(username);
+        return new ResponseEntity<List<UserDto>>(myFriends, HttpStatus.OK);
+    }
+
+    @GetMapping("/outbound-requests")
+    public ResponseEntity<List<UserDto>> getOutBoundRequests(HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+
+        List<UserDto> myFriends = friendService.getOutBoundRequests(username);
+        return new ResponseEntity<List<UserDto>>(myFriends, HttpStatus.OK);
+    }
+
+    /*@GetMapping("/checkFriend")
     public boolean  checkFriend(@RequestParam("friendId")String friendId, HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
@@ -66,5 +89,59 @@ public class FriendController {
 
         boolean friends = friendRepo.existsByFirstUserAndSecondUser(firstuser,seconduser);
         return friends;
+    }*/
+
+    @GetMapping("/checkFriend")
+    public String checkFriend(@RequestParam("id")String id, HttpServletRequest request) {
+        String friendship;
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+
+        User user = userRepo.getOne(Long.parseLong(id));
+
+        User user1 = userRepo.findByUsername(username);
+        User user2 = userRepo.findByUsername(user.getUsername());
+
+        Friend friend = friendRepo.findBySenderAndReceiver(user1,user2);
+        if(friend==null){
+            friend = friendRepo.findByReceiverAndSender(user1,user2);
+        }
+
+        if(friend!=null){
+            friendship=friend.getApprovalStatus();
+        }
+        else{
+            friendship="false";
+        }
+        return friendship;
     }
+
+    @GetMapping("/fellow-user")
+    public FellowUserDto  checkFriendUser(@RequestParam("id")String fellowId, HttpServletRequest request) {
+        String friendship;
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+
+        User user = userRepo.getOne(Long.parseLong(fellowId));
+
+        User user1 = userRepo.findByUsername(username);
+        User user2 = userRepo.findByUsername(user.getUsername());
+
+        Friend friend = friendRepo.findBySenderAndReceiver(user1,user2);
+        if(friend==null){
+            friend = friendRepo.findByReceiverAndSender(user1,user2);
+        }
+
+        if(friend!=null){
+            friendship=friend.getApprovalStatus();
+        }
+        else{
+            friendship="false";
+        }
+
+        FellowUserDto fellowUserDto = fellowUserMapper.mapToDto(user2,friendship);
+        return fellowUserDto;
+    }
+
+
 }

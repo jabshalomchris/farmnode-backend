@@ -4,14 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class FellowUserDto {
     private Long userId;
     private String name;
     private String username;
-    /*private Instant creationDate;
-    private boolean active;*/
+    private Integer produceCount;
+    /*private Integer produceCount;
+    private Integer friendsCount;
+    private Integer subscriptions;
+    private Integer reviews;*/
+    private String friendship;
 }

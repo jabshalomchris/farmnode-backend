@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface ProduceRepo extends JpaRepository<Produce, Long> {
     List<Produce> findByUser(User user);
+    List<Produce> findByUserAndPublishStatus(User user, String publishStatus);
 
     @Query(value = "SELECT * FROM produce WHERE latitude > ?1 AND latitude < ?2 AND longitude > ?3 AND longitude < ?4",
             nativeQuery = true)
