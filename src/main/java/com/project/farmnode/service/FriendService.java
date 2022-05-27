@@ -59,8 +59,7 @@ public class FriendService {
         User receiver = userRepo.findByUsername(userDto2.getUsername());   // change to email when needed
 
 
-        if( !(friendRepo.existsBySenderAndReceiver(sender,receiver))
-                || !(friendRepo.existsBySenderAndReceiver(receiver,sender))){
+        if(friendRepo.existsBySenderAndReceiver(sender,receiver) == false && friendRepo.existsBySenderAndReceiver(receiver,sender)==false){
             friend.setCreatedDate(new Date());
             friend.setSender(sender);
             friend.setReceiver(receiver);
@@ -127,6 +126,14 @@ public class FriendService {
             senders.add(userDto);
         }
         return senders;
+    }
+
+    public void changeFriendStatus(String status, long senderId, long receiverId){
+        friendRepo.updateStatusByReceiver(status,senderId, receiverId);
+    }
+
+    public void deleteRequest(User sender, User receiver){
+        friendRepo.deleteBySenderAndReceiver(sender,receiver);
     }
 
 

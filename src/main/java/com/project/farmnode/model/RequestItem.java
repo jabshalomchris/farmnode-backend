@@ -21,5 +21,4 @@ public class RequestItem {
     private Request Request;
     @ManyToOne
     private Produce produce;
-
 }

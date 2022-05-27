@@ -42,7 +42,6 @@ public class UserController {
     @PostMapping("/user/signup")
     public ResponseDto signup(@RequestBody RegisterRequest registerRequest){
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("api/user/signup").toUriString());
-
         //userService.signup(registerRequest);
         //return new ResponseEntity<>("User Registration Successful",OK);
         return userService.signup(registerRequest);
@@ -70,7 +69,7 @@ public class UserController {
     }
 
     @GetMapping("/token/refresh")
-    public void addRrefreshTokenoleToUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void addRefreshTokenToUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
         {

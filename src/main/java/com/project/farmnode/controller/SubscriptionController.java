@@ -30,8 +30,10 @@ public class SubscriptionController {
     private final UserRepo userRepo;
     private final ProduceRepo produceRepo;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse> subscribe(@RequestParam("produceId")Long produceId, HttpServletRequest request) throws NullPointerException{
+    @RequestMapping(value = "/{produceId}",
+            produces = "application/json",
+            method=RequestMethod.POST)
+    public ResponseEntity<ApiResponse> subscribe(@PathVariable("produceId")Long produceId, HttpServletRequest request) throws NullPointerException{
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         User user = userRepo.findByUsername(username);
@@ -57,8 +59,8 @@ public class SubscriptionController {
     }
 
 
-    @PostMapping("/unsubscribe")
-    public ResponseEntity<ApiResponse> unsubscribe(@RequestParam("produceId")Long produceId, HttpServletRequest request) throws NullPointerException{
+    @PostMapping("/unsubscribe/{produceId}")
+    public ResponseEntity<ApiResponse> unsubscribe(@PathVariable("produceId")Long produceId, HttpServletRequest request) throws NullPointerException{
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         User user = userRepo.findByUsername(username);
@@ -83,6 +85,14 @@ public class SubscriptionController {
         String username = principal.getName();
 
         return status(HttpStatus.OK).body(subscriptionService.findByUser(username));
+    }
+
+    @GetMapping("/by-user-detailed")
+    public ResponseEntity <List<ProduceDto>>  findByUserDetailed(HttpServletRequest request) throws NullPointerException{
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+
+        return status(HttpStatus.OK).body(subscriptionService.findByUserDetailed(username));
     }
 
     @GetMapping("/check")

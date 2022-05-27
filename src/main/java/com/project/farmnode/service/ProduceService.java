@@ -2,6 +2,7 @@ package com.project.farmnode.service;
 
 import com.project.farmnode.dto.ProduceDto;
 import com.project.farmnode.dto.ProduceFilterDto;
+import com.project.farmnode.enums.ProduceStatus;
 import com.project.farmnode.exception.ResourceNotFoundException;
 import com.project.farmnode.mapper.ProduceMapper;
 import com.project.farmnode.model.Produce;
@@ -32,6 +33,10 @@ public class ProduceService {
 
     public void save(ProduceDto produceDto, String Username) {
         produceRepo.save(produceMapper.map(produceDto, userService.getUser(Username)));
+    }
+
+    public void update(ProduceDto produceDto, String Username) {
+        produceRepo.save(produceMapper.mapUpdate(produceDto,userService.getUser(Username)));
     }
 
     @Transactional(readOnly = true)
@@ -114,18 +119,43 @@ public class ProduceService {
         String sw_lng = produceFilterDto.getSw_lng();
         String ne_lng = produceFilterDto.getNe_lng();
 
-        return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng)
+        return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng,"","")
                 .stream()
                 .map(produceMapper::mapToDto)
                 .collect(toList());
     }
 
-    public List<ProduceDto> getFilteredGeoJsonProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng) {
+    public List<ProduceDto> getFilteredGeoJsonProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status) {
 
-        return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng)
+        return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng,category,status)
                 .stream()
                 .map(produceMapper::mapToDto)
                 .collect(toList());
+    }
+
+    public List<ProduceDto> getFilteredGeoJsonProducesWithoutUsers(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status, String username) {
+
+        long user_id = userRepo.findByUsername(username).getUserId();
+
+        return produceRepo.findByFiltersOfNonusersProduce(sw_lat,ne_lat, sw_lng, ne_lng,category, status, user_id)
+                .stream()
+                .map(produceMapper::mapToDto)
+                .collect(toList());
+    }
+
+    public void updateProduceStatus(String status,int produceId) {
+        String produceStatus;
+        if(status =="RIPE"){
+            produceStatus = ProduceStatus.RIPE.responsibleState();
+        }
+        else{
+            produceStatus = ProduceStatus.GROWING.responsibleState();
+        }
+        produceRepo.updateStatus(status,produceId);
+    }
+
+    public void updatePublishStatus(String status,int produceId) {
+        produceRepo.updatePublishStatus(status,produceId);
     }
 
 

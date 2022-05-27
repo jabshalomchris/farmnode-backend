@@ -14,6 +14,11 @@ public abstract class ProduceMapper {
     @Mapping(target = "user", source = "user")
     public abstract Produce map(ProduceDto produceDto, User user);
 
+
+    @Mapping(target = "produceName", source = "produceDto.produceName")
+    @Mapping(target = "user", source = "user")
+    public abstract Produce mapUpdate(ProduceDto produceDto, User user);
+
     @Mapping(target = "produceId", source = "produceId")
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "grower", source = "user.name")

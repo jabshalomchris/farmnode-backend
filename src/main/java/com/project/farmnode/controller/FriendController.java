@@ -3,9 +3,12 @@ package com.project.farmnode.controller;
 import com.project.farmnode.common.ApiResponse;
 import com.project.farmnode.dto.FellowUserDto;
 import com.project.farmnode.dto.UserDto;
+import com.project.farmnode.enums.FriendshipStatus;
+import com.project.farmnode.exception.ResourceNotFoundException;
 import com.project.farmnode.mapper.FellowUserMapper;
 import com.project.farmnode.mapper.UserMapper;
 import com.project.farmnode.model.Friend;
+import com.project.farmnode.model.Produce;
 import com.project.farmnode.model.User;
 import com.project.farmnode.repository.FriendRepo;
 import com.project.farmnode.repository.UserRepo;
@@ -14,14 +17,12 @@ import com.project.farmnode.service.FriendService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/friends")
@@ -33,8 +34,8 @@ public class FriendController {
     private final UserMapper userMapper;
     private final FellowUserMapper fellowUserMapper;
 
-    @GetMapping("/addFriend")
-    public ResponseEntity<ApiResponse> addUser(@RequestParam("friendId")String friendId, HttpServletRequest request) throws NullPointerException{
+    @PostMapping("/addFriend/{friendId}")
+    public ResponseEntity<ApiResponse> addUser(@PathVariable("friendId")String friendId, HttpServletRequest request) throws NullPointerException{
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
         User user = userRepo.findByUsername(username);
@@ -117,17 +118,18 @@ public class FriendController {
     }
 
     @GetMapping("/fellow-user")
-    public FellowUserDto  checkFriendUser(@RequestParam("id")String fellowId, HttpServletRequest request) {
+    public FellowUserDto  checkFriendUser(@RequestParam("username")String username, HttpServletRequest request) {
         String friendship;
         Principal principal = request.getUserPrincipal();
-        String username = principal.getName();
+        String currentusername = principal.getName();
 
-        User user = userRepo.getOne(Long.parseLong(fellowId));
+        //User user = userRepo.getOne(Long.parseLong(fellowId));
 
-        User user1 = userRepo.findByUsername(username);
-        User user2 = userRepo.findByUsername(user.getUsername());
+        User user1 = userRepo.findByUsername(currentusername);
+        User user2 = userRepo.findByUsername(username);
 
         Friend friend = friendRepo.findBySenderAndReceiver(user1,user2);
+
         if(friend==null){
             friend = friendRepo.findByReceiverAndSender(user1,user2);
         }
@@ -138,10 +140,47 @@ public class FriendController {
         else{
             friendship="false";
         }
-
         FellowUserDto fellowUserDto = fellowUserMapper.mapToDto(user2,friendship);
         return fellowUserDto;
     }
 
+    @PostMapping("/approve-friend/{sender_id}")
+    public ResponseEntity<ApiResponse> approveFriendshipByReceiver(@PathVariable("sender_id")Long sender_id, HttpServletRequest request){
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+        long receiver_id = userRepo.findByUsername(username).getUserId();
+        //long sender_id= userRepo.findByUsername(username).getUserId();
 
+        try{
+            friendService.changeFriendStatus(FriendshipStatus.APPROVED.toString(),sender_id,receiver_id);
+            }
+        catch(Exception e){
+            return new ResponseEntity<ApiResponse>(new ApiResponse(false, "Acceptance failed"), HttpStatus.EXPECTATION_FAILED);
+
+        }
+        return new ResponseEntity<ApiResponse>(new ApiResponse(true, "Friend request accepted successfully"), HttpStatus.OK);
+
+    }
+
+    @PostMapping("/cancel-request/{receiverId}")
+    public ResponseEntity<ApiResponse> cancelRequestBySender(@PathVariable("receiverId")Long receiverId, HttpServletRequest request) throws NullPointerException{
+
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+        User sender = userRepo.findByUsername(username);
+
+
+        User receiver = userRepo.findById(receiverId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: "+receiverId));
+
+        try{
+            friendService.deleteRequest(sender,receiver);
+        }
+        catch(Exception exception){
+            return new ResponseEntity<>(new ApiResponse(false, "Failed to cancel request "+exception), HttpStatus.EXPECTATION_FAILED);
+
+        }
+        return new ResponseEntity<>(new ApiResponse(true, "Request cancelled successfully"), HttpStatus.OK);
+
+    }
 }

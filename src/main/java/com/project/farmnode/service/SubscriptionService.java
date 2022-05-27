@@ -38,7 +38,6 @@ public class SubscriptionService {
 
 
     public void subscribe(User user, Produce produce) {
-
         Subscription subscription = new Subscription();
         subscription.setUser(user);
         subscription.setProduce(produce);
@@ -74,10 +73,23 @@ public class SubscriptionService {
         //List<MyDto> dtos = ...
         Map<String, List<ProduceDto>> map = produceDtoList.stream()
                 .collect(Collectors.groupingBy(ProduceDto::getGrower));
-
-
         return map;
     }
 
+    public List<ProduceDto> findByUserDetailed(String username){
+        User user = userRepo.findByUsername(username);
+        if(user==null){
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+        List<ProduceDto> produceDtoList = new ArrayList<>();
+        List<Subscription> subscriptionList = subscriptionRepo.findByUser(user);
 
+        for (Subscription element : subscriptionList) {
+
+            Produce produce = element.getProduce();
+            ProduceDto produceDto = produceMapper.mapToDto(produce);
+            produceDtoList.add(produceDto);
+        }
+        return produceDtoList;
+    }
 }

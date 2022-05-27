@@ -36,6 +36,16 @@ public class ProduceController {
         return new ResponseEntity<>(new ApiResponse(true, "Produce has been added"), HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/update",
+            produces = "application/json",
+            method=RequestMethod.PUT)
+    public ResponseEntity<ApiResponse> updateProduce(@RequestBody ProduceDto produceDto,HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+        produceService.update(produceDto,username);
+        return new ResponseEntity<>(new ApiResponse(true, "Produce updated"), HttpStatus.CREATED);
+    }
+
     @GetMapping
     public ResponseEntity<List<ProduceDto>> getAllProduces() {
         return status(HttpStatus.OK).body(produceService.getAllProduce());
@@ -58,19 +68,42 @@ public class ProduceController {
         return status(HttpStatus.OK).body(produceService.getProduceByUsername(username));
     }
 
+    @GetMapping("/by-user")
+    public ResponseEntity<List<ProduceDto>> getProduceByUser(HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+        return status(HttpStatus.OK).body(produceService.getProduceByUsername(username));
+    }
+
     @GetMapping("/by-user/{username}/{status}")
     public ResponseEntity<List<ProduceDto>> getProduceByUsernameAndStatus(@PathVariable("username") String username,
                                                                           @PathVariable("status") String status) {
         return status(HttpStatus.OK).body(produceService.getProduceByUsernameAndPublishStatus(username,status));
     }
 
+    @RequestMapping(value = "/update-status/{status}/{produceId}",
+            produces = "application/json",
+            method=RequestMethod.POST)
+    public ResponseEntity<ApiResponse> updateStatusProduce(@PathVariable(value = "status") String status, @PathVariable(value = "produceId") int produceId) {
+        produceService.updateProduceStatus(status, produceId);
+        return new ResponseEntity<>(new ApiResponse(true, "Produce status updated"), HttpStatus.CREATED);
+    }
+
+
+    @RequestMapping(value = "/update-publish/{status}/{produceId}",
+            produces = "application/json",
+            method=RequestMethod.POST)
+    public ResponseEntity<ApiResponse> updatePublishStatusProduce(@PathVariable(value = "status") String status, @PathVariable(value = "produceId") int produceId) {
+        produceService.updatePublishStatus(status, produceId);
+        return new ResponseEntity<>(new ApiResponse(true, "Produce status updated"), HttpStatus.CREATED);
+    }
 
     //fetch produces within bounds
     @GetMapping("/by-filters")
     public ResponseEntity<List<ProduceDto>> getProduceByFilters(@RequestBody ProduceFilterDto produceFilterDto) {
         return status(HttpStatus.OK).body(produceService.getFilteredProduces(produceFilterDto));
     }
-    @GetMapping("/geoJson")
+    /*@GetMapping("/geoJson")
     public String getProduceGeoJsonByFilters() {
 
         FeatureDto feature = new FeatureDto();
@@ -90,6 +123,27 @@ public class ProduceController {
 
         // String featureGeoJSON = FeatureBuilder.getInstance().toGeoJSON(feature);
         return FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
+    }*/
+
+    @RequestMapping(value = "/produceFiltersNew", method = RequestMethod.GET, produces="application/json")
+    @ResponseBody
+    public ResponseEntity<List<ProduceDto>> getProduceByFiltersNew(@RequestParam String sw_lat,
+                                                @RequestParam String ne_lat,
+                                                @RequestParam String sw_lng,
+                                                @RequestParam String ne_lng,
+                                                                   @RequestParam boolean include_users,@RequestParam String category,@RequestParam String status, HttpServletRequest request) {
+
+        List<ProduceDto > produceDtoList;
+        if(include_users == true){
+            produceDtoList = produceService.getFilteredGeoJsonProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status);
+        }
+        else{
+            Principal principal = request.getUserPrincipal();
+            String username = principal.getName();
+            produceDtoList = produceService.getFilteredGeoJsonProducesWithoutUsers(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status,username);
+        }
+        return status(HttpStatus.OK).body(produceDtoList);
+
     }
 
     @RequestMapping(value = "/geoJsonNew", method = RequestMethod.GET, produces="application/json")
@@ -97,13 +151,29 @@ public class ProduceController {
     public String getProduceGeoJsonByFiltersNew(@RequestParam String sw_lat,
                                                 @RequestParam String ne_lat,
                                                 @RequestParam String sw_lng,
-                                                @RequestParam String ne_lng) {
+                                                @RequestParam String ne_lng,
+                                                @RequestParam String category,
+                                                @RequestParam String status,
+                                                @RequestParam boolean include_users,
+                                                HttpServletRequest request) {
+
+
 
         FeatureCollectionDto featureCollection = new FeatureCollectionDto();
         //creating a list of features
         List<FeatureDto> dtoList = new ArrayList<>();
+        List<ProduceDto > produceDtoList;
 
-        List<ProduceDto > produceDtoList = produceService.getFilteredGeoJsonProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng);
+        if(include_users == true){
+            produceDtoList = produceService.getFilteredGeoJsonProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status);
+        }
+        else{
+            Principal principal = request.getUserPrincipal();
+            String username = principal.getName();
+            produceDtoList = produceService.getFilteredGeoJsonProducesWithoutUsers(sw_lat,  ne_lat,  sw_lng,  ne_lng,status,category,username);
+        }
+
+
         for (ProduceDto element : produceDtoList) {
             FeatureDto feature = new FeatureDto();
             PointDto point = new PointDto(element.getLongitude(), element.getLatitude() );
@@ -111,13 +181,13 @@ public class ProduceController {
             feature.setId(element.getProduceId().toString());
             feature.setProperties
                     ("{\"Name\": \""+element.getProduceName()+"\", "+
-                            "\"Description\": \""+element.getDescription()+"\", "+
-                            "\"ProduceStatus\": \""+element.getProduceStatus()+"\", "+
+                            "\"description\": \""+element.getDescription()+"\", "+
+                            "\"produceStatus\": \""+element.getProduceStatus()+"\", "+
                             "\"price\": \""+element.getPrice()+"\", "+
                             "\"category\": \""+element.getCategory()+"\", "+
                             "\"address\": \""+element.getAddress()+"\", "+
                             "\"grower\": \""+element.getUserName()+"\", "+
-                            "\"PublishStatus\": \""+element.getPublishStatus()+"\" "+"}");
+                            "\"publishStatus\": \""+element.getPublishStatus()+"\" "+"}");
 
             dtoList.add(feature);
         }

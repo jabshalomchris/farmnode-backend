@@ -23,7 +23,10 @@ public class Request {
     @OneToMany
     private List<RequestItem> RequestItem;
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "userId", referencedColumnName = "userId")
-    private User user;
+    @JoinColumn(name = "buyerId", referencedColumnName = "userId")
+    private User buyerId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "growerId", referencedColumnName = "userId")
+    private User growerId;
     private Instant createdDate;
 }
