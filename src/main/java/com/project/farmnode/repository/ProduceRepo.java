@@ -12,6 +12,10 @@ public interface ProduceRepo extends JpaRepository<Produce, Long> {
     List<Produce> findByUser(User user);
     List<Produce> findByUserAndPublishStatus(User user, String publishStatus);
 
+    @Query(value = "SELECT * FROM produce WHERE user_id=?1 AND publish_status='true' AND produce_status='RIPE' ",
+            nativeQuery = true)
+    List<Produce> findByUserForRequest(Long userId);
+
     @Query(value = "SELECT * FROM produce WHERE latitude > ?1 AND latitude < ?2 AND longitude > ?3 AND longitude < ?4 AND category like %?5% AND produce_status like %?6%  AND publish_status='true'",
             nativeQuery = true)
     List<Produce> findByFilters(String sw_lat,String ne_lat,String sw_lng,String ne_lng, String category,String status);

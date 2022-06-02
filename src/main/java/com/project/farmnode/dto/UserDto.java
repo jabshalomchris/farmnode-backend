@@ -12,6 +12,7 @@ public class UserDto {
     private Long userId;
     private String name;
     private String username;
+    private String filename;
     /*private Instant creationDate;
     private boolean active;*/
 }

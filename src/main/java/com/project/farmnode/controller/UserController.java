@@ -31,6 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
+    public static String uploadDirectory = System.getProperty("user.dir")+"/uploads/user";
     private final UserService userService;
 
     @GetMapping("/users")

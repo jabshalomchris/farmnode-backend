@@ -18,10 +18,13 @@ public class ProduceDto {
     //measurement
     private String address;
     //geolocation
+    private String measureType;
     private double longitude;
     private double latitude;
     private String publishStatus;
     private String userName;
     private String grower;
+    private String filename;
+    private int commentCount;
     private boolean subscription;
 }

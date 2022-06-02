@@ -1,5 +1,9 @@
 package com.project.farmnode.service;
 
+import com.project.farmnode.dto.GeoJsonBuilder.feature.FeatureCollectionBuilder;
+import com.project.farmnode.dto.GeoJsonModel.feature.FeatureCollectionDto;
+import com.project.farmnode.dto.GeoJsonModel.feature.FeatureDto;
+import com.project.farmnode.dto.GeoJsonModel.geometry.PointDto;
 import com.project.farmnode.dto.ProduceDto;
 import com.project.farmnode.dto.ProduceFilterDto;
 import com.project.farmnode.enums.ProduceStatus;
@@ -16,6 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -76,6 +82,8 @@ public class ProduceService {
         produceDto.setPrice( produce.getPrice() );
         produceDto.setCategory( produce.getCategory() );
         produceDto.setAddress( produce.getAddress() );
+        produceDto.setMeasureType( produce.getMeasureType() );
+        produceDto.setFilename( produce.getFilename() );
         produceDto.setLongitude( produce.getLongitude() );
         produceDto.setLatitude( produce.getLatitude() );
         produceDto.setPublishStatus( produce.getPublishStatus() );
@@ -99,6 +107,29 @@ public class ProduceService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProduceDto> getProduceByUserId(Long userId) {
+        User user = userRepo.getById(userId);
+        if(user==null){
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+        //              .orElseThrow(() -> new UsernameNotFoundException(userName));
+        return produceRepo.findByUser(user)
+                .stream()
+                .map(produceMapper::mapToDto)
+                .collect(toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProduceDto> getProduceByUserIdForRequest(Long userId) {
+
+        //              .orElseThrow(() -> new UsernameNotFoundException(userName));
+        return produceRepo.findByUserForRequest(userId)
+                .stream()
+                .map(produceMapper::mapToDto)
+                .collect(toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<ProduceDto> getProduceByUsernameAndPublishStatus(String username, String publishStatus) {
         User user = userRepo.findByUsername(username);
         if(user==null){
@@ -113,7 +144,7 @@ public class ProduceService {
 
 
 
-    public List<ProduceDto> getFilteredProduces(ProduceFilterDto produceFilterDto) {
+    /*public List<ProduceDto> getFilteredProduces(ProduceFilterDto produceFilterDto) {
         String sw_lat = produceFilterDto.getSw_lat();
         String ne_lat = produceFilterDto.getNe_lat();
         String sw_lng = produceFilterDto.getSw_lng();
@@ -123,28 +154,79 @@ public class ProduceService {
                 .stream()
                 .map(produceMapper::mapToDto)
                 .collect(toList());
+    }*/
+
+    public List<ProduceDto> getFilteredProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status, String username) {
+
+
+        if(username==""){
+            return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng,category,status)
+                    .stream()
+                    .map(produceMapper::mapToDto)
+                    .collect(toList());
+        }
+        else{
+            return produceRepo.findByFiltersOfNonusersProduce(sw_lat,ne_lat, sw_lng, ne_lng,category, status, userRepo.findByUsername(username).getUserId())
+                    .stream()
+                    .map(produceMapper::mapToDto)
+                    .collect(toList());
+
+        }
     }
 
-    public List<ProduceDto> getFilteredGeoJsonProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status) {
 
-        return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng,category,status)
-                .stream()
-                .map(produceMapper::mapToDto)
-                .collect(toList());
+    public String getFilteredGeoJsonProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status, String username) {
+
+        FeatureCollectionDto featureCollection = new FeatureCollectionDto();
+        //creating a list of features
+        List<FeatureDto> dtoList = new ArrayList<>();
+        List<ProduceDto > produceDtoList;
+
+        if(username==""){
+            produceDtoList =produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng,category,status)
+                    .stream()
+                    .map(produceMapper::mapToDto)
+                    .collect(toList());
+        }
+        else{
+            produceDtoList=produceRepo.findByFiltersOfNonusersProduce(sw_lat,ne_lat, sw_lng, ne_lng,category, status, userRepo.findByUsername(username).getUserId())
+                    .stream()
+                    .map(produceMapper::mapToDto)
+                    .collect(toList());
+
+        }
+
+
+        for (ProduceDto element : produceDtoList) {
+            FeatureDto feature = new FeatureDto();
+            PointDto point = new PointDto(element.getLongitude(), element.getLatitude() );
+            feature.setGeometry(point);
+            feature.setId(element.getProduceId().toString());
+            feature.setProperties
+                    ("{\"Name\": \""+element.getProduceName()+"\", "+
+                            "\"description\": \""+element.getDescription()+"\", "+
+                            "\"produceStatus\": \""+element.getProduceStatus()+"\", "+
+                            "\"price\": \""+element.getPrice()+"\", "+
+                            "\"category\": \""+element.getCategory()+"\", "+
+                            "\"measureType\": \""+element.getMeasureType()+"\", "+
+                            "\"address\": \""+element.getAddress()+"\", "+
+                            "\"grower\": \""+element.getUserName()+"\", "+
+                            "\"filename\": \""+element.getFilename()+"\", "+
+                            "\"publishStatus\": \""+element.getPublishStatus()+"\" "+"}");
+
+            dtoList.add(feature);
+        }
+        featureCollection.setFeatures(dtoList);
+
+        // String featureCollectionGeoJSON = FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
+
+        return FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
     }
 
-    public List<ProduceDto> getFilteredGeoJsonProducesWithoutUsers(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status, String username) {
-
-        long user_id = userRepo.findByUsername(username).getUserId();
-
-        return produceRepo.findByFiltersOfNonusersProduce(sw_lat,ne_lat, sw_lng, ne_lng,category, status, user_id)
-                .stream()
-                .map(produceMapper::mapToDto)
-                .collect(toList());
-    }
 
     public void updateProduceStatus(String status,int produceId) {
         String produceStatus;
+
         if(status =="RIPE"){
             produceStatus = ProduceStatus.RIPE.responsibleState();
         }
@@ -157,6 +239,7 @@ public class ProduceService {
     public void updatePublishStatus(String status,int produceId) {
         produceRepo.updatePublishStatus(status,produceId);
     }
+
 
 
 

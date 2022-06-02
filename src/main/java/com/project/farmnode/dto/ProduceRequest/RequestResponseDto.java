@@ -10,10 +10,14 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestDto {
+public class RequestResponseDto {
+    private long requestId;
     private long growerId;
+    private String growerName;
     private long buyerId;
+    private String buyerName;
     private String requestStatus;
     private String message;
-    private List<RequestItemsDto> requestItem;
+    private List<RequestItemResponseDto> requestItem;
+    private String createdDate;
 }

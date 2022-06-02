@@ -14,6 +14,7 @@ public abstract class FellowUserMapper {
 
     @Mapping(target = "name", expression = "java(user.getName())")
     @Mapping(target = "produceCount", expression = "java(produceCount(user))")
+    @Mapping(target = "filename", expression = "java(user.getFilename())")
     public abstract FellowUserDto mapToDto(User user, String friendship);
 
     Integer produceCount(User user) {

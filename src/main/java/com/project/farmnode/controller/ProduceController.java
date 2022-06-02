@@ -1,23 +1,26 @@
 package com.project.farmnode.controller;
 
 import com.project.farmnode.common.ApiResponse;
-import com.project.farmnode.dto.GeoJsonBuilder.feature.FeatureCollectionBuilder;
-import com.project.farmnode.dto.GeoJsonModel.feature.FeatureCollectionDto;
-import com.project.farmnode.dto.GeoJsonModel.feature.FeatureDto;
-import com.project.farmnode.dto.GeoJsonModel.geometry.PointDto;
-import com.project.farmnode.dto.PostResponse;
 import com.project.farmnode.dto.ProduceDto;
 import com.project.farmnode.dto.ProduceFilterDto;
 import com.project.farmnode.service.ProduceService;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.springframework.http.ResponseEntity.status;
@@ -26,12 +29,82 @@ import static org.springframework.http.ResponseEntity.status;
 @RequestMapping("/api/produce")
 @AllArgsConstructor
 public class ProduceController {
+    public static String uploadDirectory = System.getProperty("user.dir")+"/uploads/produce";
     private final ProduceService produceService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse> createProduce(@RequestBody ProduceDto produceDto, HttpServletRequest request) {
+    /*@PostMapping
+    public ResponseEntity<ApiResponse> createProduce(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         Principal principal = request.getUserPrincipal();
         String username = principal.getName();
+
+        String newFile;
+        do{
+            newFile=generateUniqueFileName() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+        }
+        while(new File(uploadDirectory+newFile).exists());
+
+        Path filenameAndPath = Paths.get(uploadDirectory, newFile );
+        try{
+            Files.write(filenameAndPath,file.getBytes());
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        ProduceDto produceDto = new ProduceDto();
+
+
+
+        produceDto.setFilename(newFile);
+
+        produceService.save(produceDto, username);
+        return new ResponseEntity<>(new ApiResponse(true, "Produce has been added"), HttpStatus.CREATED);
+    }*/
+
+    @PostMapping
+    public ResponseEntity<ApiResponse> createProduce(@RequestParam("produceName") String produceName,
+                                                     @RequestParam("description") String description,
+                                                     @RequestParam("produceStatus") String produceStatus,
+                                                     @RequestParam("price") String price,
+                                                     @RequestParam("category") String category,
+                                                     @RequestParam("measureType") String measureType,
+                                                     @RequestParam("longitude") String longitude,
+                                                     @RequestParam("latitude") String latitude,
+                                                     @RequestParam("publishStatus") String publishStatus,
+            @RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+
+        String newFile="";
+        if(file!=null){
+
+            do{
+                newFile=generateUniqueFileName() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+            }
+            while(new File(uploadDirectory+newFile).exists());
+
+            Path filenameAndPath = Paths.get(uploadDirectory, newFile );
+            try{
+                Files.write(filenameAndPath,file.getBytes());
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }
+
+
+        ProduceDto produceDto = new ProduceDto();
+        produceDto.setProduceName(produceName);
+        produceDto.setCategory(category);
+        produceDto.setDescription(description);
+        produceDto.setPrice(Double.valueOf(price));
+        produceDto.setMeasureType(measureType);
+        produceDto.setLatitude(Double.valueOf(latitude));
+        produceDto.setLongitude(Double.valueOf(longitude));
+        produceDto.setProduceStatus(produceStatus);
+        produceDto.setPublishStatus(publishStatus);
+        produceDto.setFilename(newFile);
+
         produceService.save(produceDto, username);
         return new ResponseEntity<>(new ApiResponse(true, "Produce has been added"), HttpStatus.CREATED);
     }
@@ -63,9 +136,19 @@ public class ProduceController {
         return status(HttpStatus.OK).body(produceService.getProduceWithSubscription(id,username));
     }
 
-    @GetMapping("/by-user/{username}")
+    /*@GetMapping("/by-user/{username}")
     public ResponseEntity<List<ProduceDto>> getProduceByUsername(@PathVariable String username) {
         return status(HttpStatus.OK).body(produceService.getProduceByUsername(username));
+    }*/
+
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<List<ProduceDto>> getProduceByUserId(@PathVariable Long userId) {
+        return status(HttpStatus.OK).body(produceService.getProduceByUserId(userId));
+    }
+
+    @GetMapping("/by-user/request/{userId}")
+    public ResponseEntity<List<ProduceDto>> getProduceForRequestByUserId(@PathVariable Long userId) {
+        return status(HttpStatus.OK).body(produceService.getProduceByUserIdForRequest(userId));
     }
 
     @GetMapping("/by-user")
@@ -98,11 +181,38 @@ public class ProduceController {
         return new ResponseEntity<>(new ApiResponse(true, "Produce status updated"), HttpStatus.CREATED);
     }
 
-    //fetch produces within bounds
+    /*//fetch produces within bounds
     @GetMapping("/by-filters")
     public ResponseEntity<List<ProduceDto>> getProduceByFilters(@RequestBody ProduceFilterDto produceFilterDto) {
         return status(HttpStatus.OK).body(produceService.getFilteredProduces(produceFilterDto));
+    }*/
+
+    @RequestMapping(value = "/get-geojson", method = RequestMethod.GET, produces="application/json")
+    @ResponseBody
+    public String getProduceGeoJsonByFiltersNewNew(@RequestParam String sw_lat,
+                                                   @RequestParam String ne_lat,
+                                                   @RequestParam String sw_lng,
+                                                   @RequestParam String ne_lng,
+                                                   @RequestParam String category,
+                                                   @RequestParam String status,
+                                                   @RequestParam boolean include_users,
+                                                   HttpServletRequest request) {
+
+
+
+
+        if(include_users == true){
+            return produceService.getFilteredGeoJsonProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status,"");
+        }
+        else{
+            Principal principal = request.getUserPrincipal();
+            String username = principal.getName();
+            return produceService.getFilteredGeoJsonProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status,username);
+        }
+
     }
+
+
     /*@GetMapping("/geoJson")
     public String getProduceGeoJsonByFilters() {
 
@@ -124,8 +234,7 @@ public class ProduceController {
         // String featureGeoJSON = FeatureBuilder.getInstance().toGeoJSON(feature);
         return FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
     }*/
-
-    @RequestMapping(value = "/produceFiltersNew", method = RequestMethod.GET, produces="application/json")
+    @RequestMapping(value = "/by-filters", method = RequestMethod.GET, produces="application/json")
     @ResponseBody
     public ResponseEntity<List<ProduceDto>> getProduceByFiltersNew(@RequestParam String sw_lat,
                                                 @RequestParam String ne_lat,
@@ -135,17 +244,17 @@ public class ProduceController {
 
         List<ProduceDto > produceDtoList;
         if(include_users == true){
-            produceDtoList = produceService.getFilteredGeoJsonProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status);
+            produceDtoList = produceService.getFilteredProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status,"");
         }
         else{
             Principal principal = request.getUserPrincipal();
             String username = principal.getName();
-            produceDtoList = produceService.getFilteredGeoJsonProducesWithoutUsers(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status,username);
+            produceDtoList = produceService.getFilteredProduces(sw_lat,  ne_lat,  sw_lng,  ne_lng,category,status,username);
         }
         return status(HttpStatus.OK).body(produceDtoList);
 
     }
-
+/*
     @RequestMapping(value = "/geoJsonNew", method = RequestMethod.GET, produces="application/json")
     @ResponseBody
     public String getProduceGeoJsonByFiltersNew(@RequestParam String sw_lat,
@@ -187,6 +296,7 @@ public class ProduceController {
                             "\"category\": \""+element.getCategory()+"\", "+
                             "\"address\": \""+element.getAddress()+"\", "+
                             "\"grower\": \""+element.getUserName()+"\", "+
+                            "\"filename\": \""+element.getFilename()+"\", "+
                             "\"publishStatus\": \""+element.getPublishStatus()+"\" "+"}");
 
             dtoList.add(feature);
@@ -196,6 +306,21 @@ public class ProduceController {
        // String featureCollectionGeoJSON = FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
 
         return FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
+    }*/
+
+
+
+
+
+    String generateUniqueFileName() {
+        String filename = "";
+        long millis = System.currentTimeMillis();
+        String datetime = new Date().toString();
+        datetime = datetime.replace(" ", "");
+        datetime = datetime.replace(":", "");
+        String rndchars = RandomStringUtils.randomAlphanumeric(16);
+        filename = rndchars + "_" + datetime + "_" + millis;
+        return filename;
     }
 
 }

@@ -2,10 +2,17 @@ package com.project.farmnode;
 
 
 import com.project.farmnode.config.SwaggerConfiguration;
+import com.project.farmnode.controller.ImageController;
+import com.project.farmnode.controller.ProduceController;
+import com.project.farmnode.controller.UserController;
+import com.project.farmnode.service.EmailSenderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.io.File;
 import java.util.Arrays;
 
 @SpringBootApplication
@@ -23,8 +31,12 @@ import java.util.Arrays;
 public class FarmnodeApplication {
 
 	public static void main(String[] args) {
+		new File(ImageController.uploadDirectory).mkdir();
+		new File(ProduceController.uploadDirectory).mkdir();
+		new File(UserController.uploadDirectory).mkdir();
 		SpringApplication.run(FarmnodeApplication.class, args);
 	}
+
 
 	@Bean
 	public CorsFilter corsFilter() {

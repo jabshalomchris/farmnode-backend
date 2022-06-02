@@ -11,7 +11,8 @@ import java.time.Instant;
 public class ProduceCommentsDto {
     private Long produceCommentId;
     private Long produceId;
-    private Instant createdDate;
     private String text;
     private String userName;
+    private String createdDate;
+    private String filename;
 }

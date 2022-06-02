@@ -21,13 +21,13 @@ public class Produce {
     private String description;
     private String produceStatus;
     private double price;
-    //category
     private String category;
-    //measurment
+    private String measureType;
     private String address;
     //geolocation
     private double longitude;
     private double latitude;
+    private String filename;
     private String publishStatus;
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")

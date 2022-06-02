@@ -30,11 +30,12 @@ public class ProduceCommentService {
     public void save(ProduceCommentsDto produceCommentsDto, String username) {
         Produce produce = produceRepo.findById(produceCommentsDto.getProduceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Produce not found with id: "+produceCommentsDto.getProduceId().toString()));
-        ProduceComment produceComment = produceCommentMapper.map(produceCommentsDto, produce, userService.getUser(username));
+        User user = userService.getUser(username);
+        ProduceComment produceComment = produceCommentMapper.map(produceCommentsDto, produce, user);
         produceCommentRepo.save(produceComment);
 
-        /*String message = mailContentBuilder.build(produce.getUser().getName() + " posted a comment on your produce." + POST_URL);
-        sendCommentNotification(message, produce.getUser());*/
+        String message = mailContentBuilder.build(user.getName() + " posted a comment on your produce." + POST_URL);
+        sendCommentNotification(message, produce.getUser());
     }
 
     private void sendCommentNotification(String message, User user) {
@@ -44,7 +45,7 @@ public class ProduceCommentService {
     public List<ProduceCommentsDto> getAllCommentsForProduce(Long produceId) {
         Produce produce = produceRepo.findById(produceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produce not found with id: "+produceId.toString()));
-        return produceCommentRepo.findByProduce(produce)
+        return produceCommentRepo.findByProduceOrderByCreatedDateDesc(produce)
                 .stream()
                 .map(produceCommentMapper::mapToDto).collect(toList());
     }

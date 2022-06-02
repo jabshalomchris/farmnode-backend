@@ -8,7 +8,6 @@ import com.project.farmnode.exception.ResourceNotFoundException;
 import com.project.farmnode.mapper.FellowUserMapper;
 import com.project.farmnode.mapper.UserMapper;
 import com.project.farmnode.model.Friend;
-import com.project.farmnode.model.Produce;
 import com.project.farmnode.model.User;
 import com.project.farmnode.repository.FriendRepo;
 import com.project.farmnode.repository.UserRepo;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/friends")
@@ -72,25 +70,6 @@ public class FriendController {
         return new ResponseEntity<List<UserDto>>(myFriends, HttpStatus.OK);
     }
 
-    /*@GetMapping("/checkFriend")
-    public boolean  checkFriend(@RequestParam("friendId")String friendId, HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        String username = principal.getName();
-
-        User user = userRepo.getOne(Long.parseLong(friendId));
-
-        User user1 = userRepo.findByUsername(username);
-        User user2 = userRepo.findByUsername(user.getUsername());
-        User firstuser = user1;
-        User seconduser = user2;
-        if(user1.getUserId() > user2.getUserId()){
-            firstuser = user2;
-            seconduser = user1;
-        }
-
-        boolean friends = friendRepo.existsByFirstUserAndSecondUser(firstuser,seconduser);
-        return friends;
-    }*/
 
     @GetMapping("/checkFriend")
     public String checkFriend(@RequestParam("id")String id, HttpServletRequest request) {
@@ -183,4 +162,26 @@ public class FriendController {
         return new ResponseEntity<>(new ApiResponse(true, "Request cancelled successfully"), HttpStatus.OK);
 
     }
+
+
+
+    /*@GetMapping("/checkFriend")
+    public boolean  checkFriend(@RequestParam("friendId")String friendId, HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        String username = principal.getName();
+
+        User user = userRepo.getOne(Long.parseLong(friendId));
+
+        User user1 = userRepo.findByUsername(username);
+        User user2 = userRepo.findByUsername(user.getUsername());
+        User firstuser = user1;
+        User seconduser = user2;
+        if(user1.getUserId() > user2.getUserId()){
+            firstuser = user2;
+            seconduser = user1;
+        }
+
+        boolean friends = friendRepo.existsByFirstUserAndSecondUser(firstuser,seconduser);
+        return friends;
+    }*/
 }

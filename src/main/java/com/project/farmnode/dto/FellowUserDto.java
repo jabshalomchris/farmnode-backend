@@ -11,6 +11,7 @@ public class FellowUserDto {
     private Long userId;
     private String name;
     private String username;
+    private String filename;
     private Integer produceCount;
     /*private Integer produceCount;
     private Integer friendsCount;
