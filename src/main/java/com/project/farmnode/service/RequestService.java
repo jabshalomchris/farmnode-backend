@@ -41,7 +41,7 @@ public class RequestService {
     public void save(RequestDto requestDto,String Username) {
         User buyer = userService.getUser(Username);
         User grower = userRepo.findById(requestDto.getGrowerId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: "+requestDto.getGrowerId()));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with with given Id"));
 
         Request newRequest = new Request();
         newRequest.setRequestStatus(RequestStatus.PENDING.toString());

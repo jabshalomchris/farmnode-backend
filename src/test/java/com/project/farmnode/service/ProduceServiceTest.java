@@ -37,22 +37,16 @@ class ProduceServiceTest {
 
     @InjectMocks
     private ProduceService produceService;
-
     @Mock
     private ProduceRepo produceRepo;
-
     @Mock
     private ProduceMapper produceMapper;
-
     @Mock
     private UserRepo userRepo;
-
     @Mock
     private SubscriptionRepo subscriptionRepo;
-
     @Mock
     UserService userService;
-
     @Before
     public void setUp() {
 
