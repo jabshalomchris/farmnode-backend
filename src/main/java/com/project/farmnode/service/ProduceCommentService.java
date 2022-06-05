@@ -44,7 +44,7 @@ public class ProduceCommentService {
 
     public List<ProduceCommentsDto> getAllCommentsForProduce(Long produceId) {
         Produce produce = produceRepo.findById(produceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Produce not found with id: "+produceId.toString()));
+                .orElseThrow(() -> new ResourceNotFoundException("Produce not found with id: "+produceId));
         return produceCommentRepo.findByProduceOrderByCreatedDateDesc(produce)
                 .stream()
                 .map(produceCommentMapper::mapToDto).collect(toList());

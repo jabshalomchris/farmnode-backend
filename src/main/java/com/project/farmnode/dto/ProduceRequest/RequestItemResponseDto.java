@@ -19,6 +19,7 @@ public class RequestItemResponseDto {
 
     private long produceId;
     private  String produceName;
+    private String fileName;
     private  double price;
     private int quantity;
     private double linetotal;

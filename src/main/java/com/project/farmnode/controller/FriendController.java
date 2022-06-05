@@ -141,7 +141,7 @@ public class FriendController {
 
     }
 
-    @PostMapping("/cancel-request/{receiverId}")
+    @DeleteMapping("/cancel-request/{receiverId}")
     public ResponseEntity<ApiResponse> cancelRequestBySender(@PathVariable("receiverId")Long receiverId, HttpServletRequest request) throws NullPointerException{
 
         Principal principal = request.getUserPrincipal();

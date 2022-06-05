@@ -3,6 +3,7 @@ package com.project.farmnode.controller;
 import com.project.farmnode.common.ApiResponse;
 import com.project.farmnode.dto.ProduceDto;
 import com.project.farmnode.dto.ProduceFilterDto;
+import com.project.farmnode.model.Produce;
 import com.project.farmnode.service.ProduceService;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
@@ -91,9 +92,20 @@ public class ProduceController {
             }
 
         }
+        Produce produce = new Produce();
+        produce.setProduceName(produceName);
+        produce.setCategory(category);
+        produce.setDescription(description);
+        produce.setPrice(Double.valueOf(price));
+        produce.setMeasureType(measureType);
+        produce.setLatitude(Double.valueOf(latitude));
+        produce.setLongitude(Double.valueOf(longitude));
+        produce.setProduceStatus(produceStatus);
+        produce.setPublishStatus(publishStatus);
+        produce.setFilename(newFile);
 
 
-        ProduceDto produceDto = new ProduceDto();
+       /* ProduceDto produceDto = new ProduceDto();
         produceDto.setProduceName(produceName);
         produceDto.setCategory(category);
         produceDto.setDescription(description);
@@ -103,9 +115,9 @@ public class ProduceController {
         produceDto.setLongitude(Double.valueOf(longitude));
         produceDto.setProduceStatus(produceStatus);
         produceDto.setPublishStatus(publishStatus);
-        produceDto.setFilename(newFile);
+        produceDto.setFilename(newFile);*/
 
-        produceService.save(produceDto, username);
+        produceService.save(produce,username);
         return new ResponseEntity<>(new ApiResponse(true, "Produce has been added"), HttpStatus.CREATED);
     }
 
@@ -234,6 +246,7 @@ public class ProduceController {
         // String featureGeoJSON = FeatureBuilder.getInstance().toGeoJSON(feature);
         return FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
     }*/
+
     @RequestMapping(value = "/by-filters", method = RequestMethod.GET, produces="application/json")
     @ResponseBody
     public ResponseEntity<List<ProduceDto>> getProduceByFiltersNew(@RequestParam String sw_lat,
@@ -307,8 +320,6 @@ public class ProduceController {
 
         return FeatureCollectionBuilder.getInstance().toGeoJSON(featureCollection);
     }*/
-
-
 
 
 

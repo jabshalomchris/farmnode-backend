@@ -32,6 +32,11 @@ public class RequestController {
         requestService.save(requestDto,username);
     }
 
+    @GetMapping("/{requestId}")
+    public ResponseEntity<RequestResponseDto> getRequestsById(@PathVariable("requestId") long requestId) {
+        return status(HttpStatus.OK).body(requestService.getRequestById(requestId));
+    }
+
     @GetMapping("/by-buyer")
     public ResponseEntity<List<RequestResponseDto>> getRequestsByBuyer(HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
@@ -49,7 +54,7 @@ public class RequestController {
     @PutMapping("/{requestId}/{status}")
     public ResponseEntity<ApiResponse> getProduceByUsernameAndStatus(@PathVariable("requestId") int requestId,
                                                                           @PathVariable("status") String status) {
-        requestService.updateRequestStatus(status,requestId);
+        requestService.updateRequestStatus(requestId,status);
         return new ResponseEntity<>(new ApiResponse(true, "Request status updated"), HttpStatus.CREATED);
     }
 }

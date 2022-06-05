@@ -19,5 +19,6 @@ public class RequestResponseDto {
     private String requestStatus;
     private String message;
     private List<RequestItemResponseDto> requestItem;
+
     private String createdDate;
 }

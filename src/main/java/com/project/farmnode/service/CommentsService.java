@@ -44,7 +44,7 @@ public class CommentsService {
     }
 
     public List<CommentsDto> getAllCommentsForPost(Long postId) {
-        Post post = postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found with id: "+postId.toString()));
+        Post post = postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post not found with id: "+postId));
         return commentRepo.findByPost(post)
                 .stream()
                 .map(commentMapper::mapToDto).collect(toList());

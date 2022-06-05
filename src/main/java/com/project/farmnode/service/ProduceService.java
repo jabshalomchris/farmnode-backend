@@ -5,7 +5,6 @@ import com.project.farmnode.dto.GeoJsonModel.feature.FeatureCollectionDto;
 import com.project.farmnode.dto.GeoJsonModel.feature.FeatureDto;
 import com.project.farmnode.dto.GeoJsonModel.geometry.PointDto;
 import com.project.farmnode.dto.ProduceDto;
-import com.project.farmnode.dto.ProduceFilterDto;
 import com.project.farmnode.enums.ProduceStatus;
 import com.project.farmnode.exception.ResourceNotFoundException;
 import com.project.farmnode.mapper.ProduceMapper;
@@ -20,7 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +36,14 @@ public class ProduceService {
     private final ProduceMapper produceMapper;
     private final SubscriptionRepo subscriptionRepo;
 
-    public void save(ProduceDto produceDto, String Username) {
-        produceRepo.save(produceMapper.map(produceDto, userService.getUser(Username)));
+    /*public Produce save(ProduceDto produceDto, String Username) {
+        User user = userService.getUser(Username);
+        return produceRepo.save(produceMapper.map(produceDto, user));
+    }*/
+    public void save(Produce produce, String Username) {
+        User user = userService.getUser(Username);
+        produce.setUser(user);
+        produceRepo.save(produce);
     }
 
     public void update(ProduceDto produceDto, String Username) {
@@ -56,7 +61,7 @@ public class ProduceService {
     @Transactional(readOnly = true)
     public ProduceDto getProduce(Long id) {
         Produce produce = produceRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Produce is not found with id: "+id.toString()));
+                .orElseThrow(() -> new ResourceNotFoundException("Produce is not found with id: "+id));
         return produceMapper.mapToDto(produce);
         //return produce;
     }
@@ -69,13 +74,11 @@ public class ProduceService {
         }
 
         Produce produce = produceRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Produce is not found with id: "+id.toString()));
-
-        String producerUsername = produce.getUser().getUsername();
+                .orElseThrow(() -> new ResourceNotFoundException("Produce is not found with id: "+id));
 
         ProduceDto produceDto = new ProduceDto();
         produceDto.setProduceId( produce.getProduceId() );
-        produceDto.setUserName( producerUsername );
+        produceDto.setUserName( produce.getUser().getUsername() );
         produceDto.setProduceName( produce.getProduceName() );
         produceDto.setDescription( produce.getDescription() );
         produceDto.setProduceStatus( produce.getProduceStatus() );
@@ -153,7 +156,7 @@ public class ProduceService {
         return produceRepo.findByFilters(sw_lat,ne_lat, sw_lng, ne_lng,"","")
                 .stream()
                 .map(produceMapper::mapToDto)
-                .collect(toList());
+                .collect(toList());}
     }*/
 
     public List<ProduceDto> getFilteredProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status, String username) {
@@ -166,13 +169,14 @@ public class ProduceService {
                     .collect(toList());
         }
         else{
-            return produceRepo.findByFiltersOfNonusersProduce(sw_lat,ne_lat, sw_lng, ne_lng,category, status, userRepo.findByUsername(username).getUserId())
+            Long userId = userRepo.findByUsername(username).getUserId();
+            return produceRepo.findByFiltersOfNonusersProduce(sw_lat,ne_lat, sw_lng, ne_lng,category, status, userId)
                     .stream()
                     .map(produceMapper::mapToDto)
                     .collect(toList());
-
         }
     }
+
 
 
     public String getFilteredGeoJsonProduces(String sw_lat, String ne_lat, String sw_lng, String ne_lng,String category, String status, String username) {
@@ -233,15 +237,10 @@ public class ProduceService {
         else{
             produceStatus = ProduceStatus.GROWING.responsibleState();
         }
-        produceRepo.updateStatus(status,produceId);
+        produceRepo.updateProduceStatus(status,produceId);
     }
-
     public void updatePublishStatus(String status,int produceId) {
         produceRepo.updatePublishStatus(status,produceId);
     }
-
-
-
-
 
 }

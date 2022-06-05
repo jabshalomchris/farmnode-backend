@@ -1,15 +1,10 @@
 package com.project.farmnode.service;
 
-import com.project.farmnode.dto.GeoJsonModel.feature.FeatureDto;
-import com.project.farmnode.dto.GeoJsonModel.geometry.PointDto;
 import com.project.farmnode.dto.ProduceDto;
-import com.project.farmnode.dto.SubscriptionDto;
-import com.project.farmnode.exception.ResourceNotFoundException;
 import com.project.farmnode.mapper.ProduceMapper;
 import com.project.farmnode.model.Produce;
 import com.project.farmnode.model.Subscription;
 import com.project.farmnode.model.User;
-import com.project.farmnode.repository.ProduceRepo;
 import com.project.farmnode.repository.SubscriptionRepo;
 import com.project.farmnode.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +25,6 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 public class SubscriptionService {
     private final UserRepo userRepo;
-    private final UserService userService;
-    private final ProduceRepo produceRepo;
     private final SubscriptionRepo subscriptionRepo;
     private final ProduceMapper produceMapper;
 

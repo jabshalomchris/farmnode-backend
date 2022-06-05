@@ -34,16 +34,16 @@ public class FriendService {
         Friend friend = new Friend();
         User user1 = userRepo.findByUsername(userDto1.getUsername());   // change to email when needed
         User user2 = userRepo.findByUsername(userDto2.getUsername());   // change to email when needed
-        User firstuser = user1;
-        User seconduser = user2;
+        User firstUser = user1;
+        User secondUser = user2;
         if(user1.getUserId() > user2.getUserId()){
-            firstuser = user2;
-            seconduser = user1;
+            firstUser = user2;
+            secondUser = user1;
         }
-        if( !(friendRepo.existsByFirstUserAndSecondUser(firstuser,seconduser)) ){
+        if( !(friendRepo.existsByFirstUserAndSecondUser(firstUser,secondUser)) ){
             friend.setCreatedDate(new Date());
-            friend.setFirstUser(firstuser);
-            friend.setSecondUser(seconduser);
+            friend.setFirstUser(firstUser);
+            friend.setSecondUser(secondUser);
             friend.setApprovalStatus(FriendshipStatus.PENDING.toString());
             friendRepo.save(friend);
         }
@@ -155,7 +155,7 @@ public class FriendService {
             it is because of lexicographical order
             while calling get friends of user 2 we need to check as a both first user and the second user
          *//*
-        for (Friend friend : friendsByFirstUser) {
+        for (Friend friends : friendsByFirstUser) {
 
              userDto = userMapper.mapToDto(userRepo.getById(friend.getSecondUser().getUserId()));
             friendUsers.add(userDto);

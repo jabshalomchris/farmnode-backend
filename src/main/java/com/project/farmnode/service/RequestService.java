@@ -1,15 +1,12 @@
 package com.project.farmnode.service;
 
-import com.project.farmnode.dto.ProduceDto;
+
 import com.project.farmnode.dto.ProduceRequest.RequestDto;
 import com.project.farmnode.dto.ProduceRequest.RequestItemResponseDto;
 import com.project.farmnode.dto.ProduceRequest.RequestItemsDto;
 import com.project.farmnode.dto.ProduceRequest.RequestResponseDto;
-import com.project.farmnode.enums.ProduceStatus;
 import com.project.farmnode.enums.RequestStatus;
 import com.project.farmnode.exception.ResourceNotFoundException;
-import com.project.farmnode.mapper.ProduceMapper;
-import com.project.farmnode.mapper.RequestMapper;
 import com.project.farmnode.model.Produce;
 import com.project.farmnode.model.Request;
 import com.project.farmnode.model.RequestItem;
@@ -29,9 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @AllArgsConstructor
@@ -43,7 +37,6 @@ public class RequestService {
     private final ProduceRepo produceRepo;
     private final RequestItemsRepo requestItemsRepo;
     private final UserService userService;
-    private final RequestMapper requestMapper;
 
     public void save(RequestDto requestDto,String Username) {
         User buyer = userService.getUser(Username);
@@ -58,8 +51,8 @@ public class RequestService {
         newRequest.setCreatedDate(java.time.Instant.now());
         requestRepo.save(newRequest);
 
-        List<RequestItemsDto> requestItemsDtosList = requestDto.getRequestItem();
-        for (RequestItemsDto requestItemsDto : requestItemsDtosList) {
+        List<RequestItemsDto> requestItemsDtoList = requestDto.getRequestItem();
+        for (RequestItemsDto requestItemsDto : requestItemsDtoList) {
 
             Produce produce = produceRepo.findById(requestItemsDto.getProduceId())
                     .orElseThrow(() -> new ResourceNotFoundException("Produce is not found with id: "));
@@ -125,6 +118,7 @@ public class RequestService {
                 requestItemResponseDto.setQuantity(itemElement.getQuantity());
                 requestItemResponseDto.setPrice(itemElement.getPrice());
                 requestItemResponseDto.setLinetotal(itemElement.getPrice()*itemElement.getQuantity());
+                requestItemResponseDto.setFileName(itemElement.getProduce().getFilename());
                 requestItemResponseDtoList.add(requestItemResponseDto);
             }
 
@@ -179,6 +173,7 @@ public class RequestService {
                 requestItemResponseDto.setQuantity(itemElement.getQuantity());
                 requestItemResponseDto.setPrice(itemElement.getPrice());
                 requestItemResponseDto.setLinetotal(itemElement.getPrice()*itemElement.getQuantity());
+                requestItemResponseDto.setFileName(itemElement.getProduce().getFilename());
                 requestItemResponseDtoList.add(requestItemResponseDto);
             }
             requestResponseDto.setRequestItem(requestItemResponseDtoList);
@@ -188,15 +183,51 @@ public class RequestService {
 
     }
 
-    public Request getRequestById(Long requestId) throws ResourceNotFoundException {
-        Optional<Request> request = requestRepo.findById(requestId);
-        if (request.isPresent()) {
-            return request.get();
+    public RequestResponseDto getRequestById(Long requestId) throws ResourceNotFoundException {
+        List<RequestItem> requestItemsList;
+        Request request = requestRepo.findById(requestId)
+                .orElseThrow(() -> new ResourceNotFoundException("Request not found with id: "+requestId));
+
+        RequestResponseDto requestResponseDto = new RequestResponseDto();
+        List<RequestItemResponseDto> requestItemResponseDtoList = new ArrayList<>();
+
+        requestResponseDto.setRequestId(request.getRequestId());
+        requestResponseDto.setGrowerId(request.getGrowerId().getUserId());
+        requestResponseDto.setGrowerName(request.getGrowerId().getName());
+        requestResponseDto.setBuyerId(request.getBuyerId().getUserId());
+        requestResponseDto.setBuyerName(request.getBuyerId().getName());
+        requestResponseDto.setMessage(request.getMessage());
+        Timestamp timestamp = Timestamp.from(request.getCreatedDate());
+
+        Date date = new Date(timestamp.getTime());
+        requestResponseDto.setCreatedDate(date.toString());
+
+
+        if(request.getRequestStatus()!=null){
+            requestResponseDto.setRequestStatus(request.getRequestStatus());
         }
-        throw new ResourceNotFoundException("Request not found");
+        else{
+            requestResponseDto.setRequestStatus("");
+        }
+
+        requestItemsList = request.getRequestItem();
+
+        for (RequestItem itemElement : requestItemsList){
+            RequestItemResponseDto requestItemResponseDto = new RequestItemResponseDto();
+            requestItemResponseDto.setProduceId(itemElement.getProduce().getProduceId());
+            requestItemResponseDto.setProduceName(itemElement.getProduce().getProduceName());
+            requestItemResponseDto.setQuantity(itemElement.getQuantity());
+            requestItemResponseDto.setPrice(itemElement.getPrice());
+            requestItemResponseDto.setLinetotal(itemElement.getPrice()*itemElement.getQuantity());
+            requestItemResponseDto.setFileName(itemElement.getProduce().getFilename());
+            requestItemResponseDtoList.add(requestItemResponseDto);
+        }
+        requestResponseDto.setRequestItem(requestItemResponseDtoList);
+        return requestResponseDto;
+
     }
 
-    public void updateRequestStatus(String status,int requestId) {
+    public void updateRequestStatus(int requestId,String status) {
         String requestStatus;
 
         if(status =="APPROVED"){
@@ -208,6 +239,6 @@ public class RequestService {
         else{
             requestStatus = RequestStatus.PENDING.toString();
         }
-        requestRepo.updateRequestStatus(status,requestId);
+        requestRepo.updateRequestStatus(requestStatus,requestId);
     }
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface ProduceRepo extends JpaRepository<Produce, Long> {
     List<Produce> findByUser(User user);
+
     List<Produce> findByUserAndPublishStatus(User user, String publishStatus);
 
     @Query(value = "SELECT * FROM produce WHERE user_id=?1 AND publish_status='true' AND produce_status='RIPE' ",
@@ -24,16 +25,16 @@ public interface ProduceRepo extends JpaRepository<Produce, Long> {
             nativeQuery = true)
     List<Produce> findByFiltersOfNonusersProduce(String sw_lat,String ne_lat,String sw_lng,String ne_lng,String category, String status, long user_id);
 
-    @Query(value = "SELECT * FROM produce WHERE latitude > ?1 AND latitude < ?2 AND longitude > ?3 AND longitude < ?4 AND user_id != ?5",
+ /*   @Query(value = "SELECT * FROM produce WHERE latitude > ?1 AND latitude < ?2 AND longitude > ?3 AND longitude < ?4 AND user_id != ?5",
             nativeQuery = true)
-    List<Produce> findByFiltersWithoutGrower(String sw_lat,String ne_lat,String sw_lng,String ne_lng, int uid);
+    List<Produce> findByFiltersWithoutGrower(String sw_lat,String ne_lat,String sw_lng,String ne_lng, int uid);*/
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE produce SET produce_status = ?1 WHERE (produce_id = ?2)",
             nativeQuery = true)
-    void updateStatus(String status, int pid);
+    void updateProduceStatus(String status, int pid);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE produce SET publish_status = ?1 WHERE (produce_id = ?2)",
             nativeQuery = true)
     void updatePublishStatus(String status, int pid);
